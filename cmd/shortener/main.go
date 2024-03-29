@@ -7,7 +7,7 @@ import (
 
 func main() {
 	shortener := &handlers.URLShortener{
-		Urls: make(map[string]string),
+		URLs: make(map[string]string),
 	}
 	mux := http.NewServeMux()
 

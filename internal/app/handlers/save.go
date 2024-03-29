@@ -9,7 +9,7 @@ import (
 )
 
 type URLShortener struct {
-	Urls map[string]string
+	URLs map[string]string
 }
 
 func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) {
@@ -31,8 +31,8 @@ func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	alias := random.NewRandomUrl()
-	us.Urls[alias] = originalURL
+	alias := random.NewRandomURL()
+	us.URLs[alias] = originalURL
 
 	shortenedURL := fmt.Sprintf("http://localhost:8080/%s", alias)
 	contentLength := len(shortenedURL)

@@ -17,7 +17,7 @@ func (us *URLShortener) GetURLHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if originalURL, ok := us.Urls[id]; ok {
+	if originalURL, ok := us.URLs[id]; ok {
 		w.Header().Set("Location", originalURL)
 		w.WriteHeader(http.StatusTemporaryRedirect)
 	} else {
