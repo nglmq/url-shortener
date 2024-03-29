@@ -14,20 +14,20 @@ type URLShortener struct {
 
 func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Only POST requests are allowed!", 400)
+		http.Error(w, "Only POST requests are allowed!", http.StatusBadRequest)
 		return
 	}
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, "Error reading request body", 400)
+		http.Error(w, "Error reading request body", http.StatusBadRequest)
 		return
 	}
 
 	// Получение URL из тела запроса
 	originalURL := string(body)
 	if originalURL == "" {
-		http.Error(w, "No URL provided", 400)
+		http.Error(w, "No URL provided", http.StatusBadRequest)
 		return
 	}
 
