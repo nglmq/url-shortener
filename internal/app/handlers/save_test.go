@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -65,6 +67,10 @@ func TestURLShortener_ShortURLHandler(t *testing.T) {
 			assert.Equal(t, tt.want.code, result.StatusCode)
 			assert.Equal(t, tt.want.contentType, result.Header.Get("Content-Type"))
 			assert.Equal(t, tt.want.contentLength, result.Header.Get("Content-Length"))
+
+			_, err := io.ReadAll(result.Body)
+			require.NoError(t, err)
+			err = result.Body.Close()
 		})
 	}
 }
