@@ -68,9 +68,10 @@ func TestURLShortener_ShortURLHandler(t *testing.T) {
 			assert.Equal(t, tt.want.contentType, result.Header.Get("Content-Type"))
 			assert.Equal(t, tt.want.contentLength, result.Header.Get("Content-Length"))
 
+			defer result.Body.Close()
 			_, err := io.ReadAll(result.Body)
+
 			require.NoError(t, err)
-			err = result.Body.Close()
 		})
 	}
 }

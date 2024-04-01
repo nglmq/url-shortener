@@ -102,9 +102,10 @@ func TestURLShortener_GetURLHandler(t *testing.T) {
 			assert.Equal(t, tt.want.code, result.StatusCode)
 			assert.Equal(t, tt.want.location, result.Header.Get("Location"))
 
+			defer result.Body.Close()
 			_, err := io.ReadAll(result.Body)
+
 			require.NoError(t, err)
-			err = result.Body.Close()
 		})
 	}
 }
