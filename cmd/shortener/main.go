@@ -1,7 +1,9 @@
 package main
 
 import (
+	"github.com/go-chi/chi/v5"
 	"github.com/nglmq/url-shortener/internal/app/handlers"
+	"log"
 	"net/http"
 )
 
@@ -9,20 +11,14 @@ func main() {
 	shortener := &handlers.URLShortener{
 		URLs: make(map[string]string),
 	}
-	mux := http.NewServeMux()
+	r := chi.NewRouter()
 
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodPost {
-			shortener.ShortURLHandler(w, r)
-		} else if r.Method == http.MethodGet {
-			shortener.GetURLHandler(w, r)
-		} else {
-			http.Error(w, "Method not allowed", http.StatusBadRequest)
-		}
+	r.Route("/", func(r chi.Router) {
+		r.Post("/", shortener.ShortURLHandler)
+		r.Route("/{id}", func(r chi.Router) {
+			r.Get("/", shortener.GetURLHandler)
+		})
 	})
 
-	err := http.ListenAndServe(`:8080`, mux)
-	if err != nil {
-		panic(err)
-	}
+	log.Fatal(http.ListenAndServe(":8080", r))
 }
