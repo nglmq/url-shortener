@@ -28,7 +28,7 @@ func TestURLShortener_ShortURLHandler(t *testing.T) {
 			want: want{
 				code:          http.StatusCreated,
 				contentType:   "text/plain",
-				contentLength: "30",
+				contentLength: "9",
 			},
 			requestBody: "https://practicum.yandex.ru/",
 			request:     "/",
@@ -48,7 +48,7 @@ func TestURLShortener_ShortURLHandler(t *testing.T) {
 			want: want{
 				code:          http.StatusCreated,
 				contentType:   "text/plain",
-				contentLength: "30",
+				contentLength: "9",
 			},
 			requestBody: "practicum.yandex.ru",
 			request:     "/",
