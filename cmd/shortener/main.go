@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/nglmq/url-shortener/config"
 	"github.com/nglmq/url-shortener/internal/app/handlers"
@@ -23,6 +22,5 @@ func main() {
 		})
 	})
 
-	fmt.Println("Running server on", config.FlagRunAddr)
 	log.Fatal(http.ListenAndServe(config.FlagRunAddr, r))
 }

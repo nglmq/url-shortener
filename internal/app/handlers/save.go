@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"github.com/nglmq/url-shortener/config"
 	"github.com/nglmq/url-shortener/internal/app/random"
 	"io"
 	"net/http"
@@ -34,7 +35,7 @@ func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) 
 	alias := random.NewRandomURL()
 	us.URLs[alias] = originalURL
 
-	shortenedURL := fmt.Sprintf("http://localhost:8080/%s", alias)
+	shortenedURL := fmt.Sprintf("%s/%s", config.FlagBaseURL, alias)
 	contentLength := len(shortenedURL)
 
 	w.Header().Set("Content-Type", "text/plain")
