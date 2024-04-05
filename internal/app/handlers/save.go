@@ -35,7 +35,8 @@ func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) 
 	alias := random.NewRandomURL()
 	us.URLs[alias] = originalURL
 
-	shortenedURL := fmt.Sprintf("%s/%s", config.FlagBaseURL, alias)
+	shortenedURL := fmt.Sprintf(config.FlagBaseURL + "/" + alias)
+	fmt.Print(shortenedURL)
 	contentLength := len(shortenedURL)
 
 	w.Header().Set("Content-Type", "text/plain")
