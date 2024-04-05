@@ -19,7 +19,7 @@ func ParseFlags() {
 	if envRunAddr != "" {
 		FlagRunAddr = envRunAddr
 	} else if FlagRunAddr != "" {
-		FlagRunAddr = FlagRunAddr
+		return
 	} else {
 		FlagRunAddr = "localhost:8080"
 	}
@@ -28,7 +28,7 @@ func ParseFlags() {
 	if envBaseURL != "" {
 		FlagBaseURL = envBaseURL
 	} else if FlagBaseURL != "" {
-		FlagBaseURL = FlagBaseURL
+		return
 	} else {
 		FlagBaseURL = "http://localhost:8080"
 	}
