@@ -1,26 +1,17 @@
 package main
 
 import (
-	"github.com/go-chi/chi/v5"
 	"github.com/nglmq/url-shortener/config"
-	"github.com/nglmq/url-shortener/internal/app/handlers"
+	"github.com/nglmq/url-shortener/internal/app/server"
 	"log"
 	"net/http"
 )
 
 func main() {
-	shortener := &handlers.URLShortener{
-		URLs: make(map[string]string),
+	r, err := server.Start()
+	if err != nil {
+		log.Fatal(err)
 	}
-	config.ParseFlags()
-	r := chi.NewRouter()
-
-	r.Route("/", func(r chi.Router) {
-		r.Post("/", shortener.ShortURLHandler)
-		r.Route("/{id}", func(r chi.Router) {
-			r.Get("/", shortener.GetURLHandler)
-		})
-	})
 
 	log.Fatal(http.ListenAndServe(config.FlagRunAddr, r))
 }
