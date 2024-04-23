@@ -6,6 +6,9 @@ import (
 )
 
 func (us *URLShortener) GetURLHandler(w http.ResponseWriter, r *http.Request) {
+	us.mx.RLock()
+	defer us.mx.RUnlock()
+
 	if r.Method != http.MethodGet {
 		http.Error(w, "Only GET requests are allowed!", http.StatusBadRequest)
 		return

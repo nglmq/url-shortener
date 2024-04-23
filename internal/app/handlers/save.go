@@ -7,13 +7,18 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"sync"
 )
 
 type URLShortener struct {
 	URLs map[string]string
+	mx   sync.RWMutex
 }
 
 func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) {
+	us.mx.Lock()
+	defer us.mx.Unlock()
+
 	if r.Method != http.MethodPost {
 		http.Error(w, "Only POST requests are allowed!", http.StatusBadRequest)
 		return
