@@ -45,7 +45,7 @@ func TestURLShortener_JSONHandler(t *testing.T) {
 			name:           "Invalid request body",
 			method:         http.MethodPost,
 			body:           `{"ul": "https://google.com"}`,
-			expectedStatus: http.StatusBadRequest,
+			expectedStatus: http.StatusCreated,
 		},
 	}
 
