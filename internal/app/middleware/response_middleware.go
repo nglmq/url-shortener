@@ -46,7 +46,7 @@ func ResponseLogger(h http.HandlerFunc) http.HandlerFunc {
 
 		h(w, r)
 
-		sugar.Infow("Incoming request",
+		sugar.Infow("Response",
 			zap.String("Status Code", strconv.Itoa(responseData.status)),
 			zap.String("Content length", strconv.Itoa(responseData.size)),
 		)

@@ -22,6 +22,9 @@ func Start() (http.Handler, error) {
 		r.Route("/{id}", func(r chi.Router) {
 			r.Get("/", middleware.ResponseLogger(shortener.GetURLHandler))
 		})
+		r.Route("/api/shorten/", func(r chi.Router) {
+			r.Post("/", shortener.JSONHandler)
+		})
 	})
 
 	return r, nil
