@@ -44,22 +44,27 @@ func (us *URLShortener) JSONHandler(w http.ResponseWriter, r *http.Request) {
 
 	alias := random.NewRandomURL()
 	us.URLs[alias] = requestJSON.URL
+	slog.Info(requestJSON.URL)
 
 	shortenedURL := fmt.Sprintf(config.FlagBaseURL + "/" + alias)
+	slog.Info(shortenedURL)
 	contentLength := len(shortenedURL)
 
 	responseJSON = JSONResponse{
 		Result: shortenedURL,
 	}
+	slog.Info(responseJSON.Result)
 
 	responseData, err := json.Marshal(responseJSON)
 	if err != nil {
 		http.Error(w, "error marshalling response", http.StatusBadRequest)
 		return
 	}
+	slog.Info(string(responseData))
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Length", strconv.Itoa(contentLength))
 	w.Write(responseData)
+	slog.Info(w.Header().Get("Content-Length"), w.Header().Get("Content-Length"))
 }

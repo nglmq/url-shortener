@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log/slog"
 	"net/http"
 	"strings"
 )
@@ -26,4 +27,5 @@ func (us *URLShortener) GetURLHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		http.Error(w, "Short URL not found", http.StatusBadRequest)
 	}
+	slog.Info(w.Header().Get("Content-Length"), w.Header().Get("Location"))
 }
