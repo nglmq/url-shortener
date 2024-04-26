@@ -28,7 +28,7 @@ func (us *URLShortener) JSONHandler(w http.ResponseWriter, r *http.Request) {
 	)
 
 	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		http.Error(w, "method not allowed", http.StatusBadRequest)
 		return
 	}
 	if err := json.NewDecoder(r.Body).Decode(&requestJSON); err != nil {
