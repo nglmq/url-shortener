@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 	"strings"
 )
@@ -22,10 +21,13 @@ func (us *URLShortener) GetURLHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if originalURL, ok := us.URLs[id]; ok {
+		if !strings.HasPrefix(originalURL, "http://") && !strings.HasPrefix(originalURL, "https://") {
+			// Если протокол отсутствует, добавляем http:// по умолчанию
+			originalURL = "http://" + originalURL
+		}
 		w.Header().Set("Location", originalURL)
 		w.WriteHeader(http.StatusTemporaryRedirect)
 	} else {
 		http.Error(w, "Short URL not found", http.StatusBadRequest)
 	}
-	log.Println(w.Header().Get("Content-Length"), w.Header().Get("Location"))
 }

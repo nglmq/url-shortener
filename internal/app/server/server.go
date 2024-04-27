@@ -17,14 +17,13 @@ func Start() (http.Handler, error) {
 
 	r := chi.NewRouter()
 
+	r.Use(middleware.RequestLogger)
 	r.Route("/", func(r chi.Router) {
-		r.Post("/", middleware.RequestLogger(shortener.ShortURLHandler))
-		r.Route("/{id}", func(r chi.Router) {
-			r.Get("/", middleware.ResponseLogger(shortener.GetURLHandler))
-		})
+		r.Post("/", shortener.ShortURLHandler)
 		r.Route("/api/shorten/", func(r chi.Router) {
 			r.Post("/", shortener.JSONHandler)
 		})
+		r.Get("/{id}", shortener.GetURLHandler)
 	})
 
 	return r, nil
