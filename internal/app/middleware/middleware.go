@@ -53,12 +53,12 @@ func RequestLogger(next http.Handler) http.Handler {
 		}
 
 		next.ServeHTTP(&lw, r)
-
 		duration := time.Since(start)
 
 		if r.Method == http.MethodPost {
 			sugar.Infof("method: %s, url: %s, status: %d, duration: %s, size: %d",
 				r.Method, r.RequestURI, responseData.status, duration, responseData.size)
+
 		} else {
 			sugar.Infof("method: %s, url: %s, status: %d, size: %d",
 				r.Method, r.RequestURI, responseData.status, responseData.size)
