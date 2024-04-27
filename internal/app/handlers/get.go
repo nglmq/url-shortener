@@ -23,12 +23,10 @@ func (us *URLShortener) GetURLHandler(w http.ResponseWriter, r *http.Request) {
 	slog.Info(r.URL.String())
 
 	if originalURL, ok := us.URLs[id]; ok {
-		slog.Info(originalURL)
 		if !strings.HasPrefix(originalURL, "http://") && !strings.HasPrefix(originalURL, "https://") {
 			// Если протокол отсутствует, добавляем http:// по умолчанию
 			originalURL = "http://" + originalURL
 		}
-		slog.Info(originalURL)
 		w.Header().Set("Location", originalURL)
 		w.WriteHeader(http.StatusTemporaryRedirect)
 	} else {

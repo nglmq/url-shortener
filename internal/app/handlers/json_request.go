@@ -29,18 +29,20 @@ func (us *URLShortener) JSONHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "method not allowed", http.StatusBadRequest)
 		return
 	}
+
 	if err := json.NewDecoder(r.Body).Decode(&requestJSON); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	slog.Info(requestJSON.URL)
+
 	if err := validator.New().Struct(&requestJSON); err != nil {
 		validateErr := err.Error()
+		slog.Info(validateErr)
 
-		slog.Error(validateErr)
 		http.Error(w, "url tag is required", http.StatusBadRequest)
 		return
 	}
+
 	alias := random.NewRandomURL()
 	us.URLs[alias] = requestJSON.URL
 

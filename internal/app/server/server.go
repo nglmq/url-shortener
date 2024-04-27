@@ -20,7 +20,7 @@ func Start() (http.Handler, error) {
 	r.Use(middleware.RequestLogger)
 	r.Route("/", func(r chi.Router) {
 		r.Post("/", shortener.ShortURLHandler)
-		r.Route("/api/shorten/", func(r chi.Router) {
+		r.Route("/api/shorten", func(r chi.Router) {
 			r.Post("/", shortener.JSONHandler)
 		})
 		r.Get("/{id}", shortener.GetURLHandler)
