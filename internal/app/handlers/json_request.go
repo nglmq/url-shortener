@@ -6,7 +6,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/nglmq/url-shortener/config"
 	"github.com/nglmq/url-shortener/internal/app/random"
-	"log"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -34,7 +33,7 @@ func (us *URLShortener) JSONHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	log.Println(requestJSON)
+	slog.Info(requestJSON.URL)
 	if err := validator.New().Struct(&requestJSON); err != nil {
 		validateErr := err.Error()
 
