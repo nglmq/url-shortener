@@ -5,7 +5,6 @@ import (
 	"github.com/nglmq/url-shortener/config"
 	"github.com/nglmq/url-shortener/internal/app/random"
 	"io"
-	"log/slog"
 	"net/http"
 	"strconv"
 	"sync"
@@ -46,8 +45,5 @@ func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) 
 	w.Header().Set("Content-Type", "text/plain")
 	w.Header().Set("Content-Length", strconv.Itoa(contentLength))
 	w.WriteHeader(http.StatusCreated)
-	slog.Info(shortenedURL)
-	slog.Info(r.Header.Get("Content-Length"))
-	slog.Info(string(body))
 	w.Write([]byte(shortenedURL))
 }

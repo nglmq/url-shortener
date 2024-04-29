@@ -8,14 +8,16 @@ import (
 )
 
 type compressWriter struct {
-	w  http.ResponseWriter
-	zw *gzip.Writer
+	w            http.ResponseWriter
+	zw           *gzip.Writer
+	compressable bool
 }
 
 func newCompressWriter(w http.ResponseWriter) *compressWriter {
 	return &compressWriter{
-		w:  w,
-		zw: gzip.NewWriter(w),
+		w:            w,
+		zw:           gzip.NewWriter(w),
+		compressable: false,
 	}
 }
 
@@ -24,21 +26,35 @@ func (c *compressWriter) Header() http.Header {
 }
 
 func (c *compressWriter) Write(p []byte) (int, error) {
-	return c.zw.Write(p)
+	return c.writer().Write(p)
 }
 
 func (c *compressWriter) WriteHeader(statusCode int) {
+
 	contentType := c.w.Header().Get("Content-Type")
 
 	if strings.Contains(contentType, "text/html") || strings.Contains(contentType, "application/json") {
 		c.w.Header().Set("Content-Encoding", "gzip")
+		c.compressable = true
 	}
+
 	c.w.WriteHeader(statusCode)
 }
 
 // Close закрывает gzip.Writer и досылает все данные из буфера.
 func (c *compressWriter) Close() error {
-	return c.zw.Close()
+	if c.compressable {
+		return c.writer().(io.WriteCloser).Close()
+	}
+	return nil
+}
+
+func (c *compressWriter) writer() io.Writer {
+	if c.compressable {
+		return c.zw
+	} else {
+		return c.w
+	}
 }
 
 // compressReader реализует интерфейс io.ReadCloser и позволяет прозрачно для сервера
@@ -73,12 +89,11 @@ func (c *compressReader) Close() error {
 
 func GzipMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 		ow := w
 
 		acceptEncoding := r.Header.Get("Accept-Encoding")
-		supportEncoding := strings.Contains(acceptEncoding, "gzip")
-		if supportEncoding {
+		supportsGzip := strings.Contains(acceptEncoding, "gzip")
+		if supportsGzip {
 			cw := newCompressWriter(w)
 
 			ow = cw
@@ -88,21 +103,17 @@ func GzipMiddleware(next http.Handler) http.Handler {
 
 		contentEncoding := r.Header.Get("Content-Encoding")
 		sendsGzip := strings.Contains(contentEncoding, "gzip")
-
 		if sendsGzip {
-			// оборачиваем тело запроса в io.Reader с поддержкой декомпрессии
 			cr, err := newCompressReader(r.Body)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
-			// меняем тело запроса на новое
+
 			r.Body = cr
 			defer cr.Close()
 		}
 
-		// передаём управление хендлеру
 		next.ServeHTTP(ow, r)
-
 	})
 }

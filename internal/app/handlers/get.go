@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"log/slog"
 	"net/http"
 	"strings"
 )
@@ -20,7 +19,6 @@ func (us *URLShortener) GetURLHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
-	slog.Info(r.URL.String())
 
 	if originalURL, ok := us.URLs[id]; ok {
 		if !strings.HasPrefix(originalURL, "http://") && !strings.HasPrefix(originalURL, "https://") {
