@@ -7,13 +7,18 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"sync"
 )
 
 type URLShortener struct {
 	URLs map[string]string
+	mx   sync.RWMutex
 }
 
 func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) {
+	us.mx.Lock()
+	defer us.mx.Unlock()
+
 	if r.Method != http.MethodPost {
 		http.Error(w, "Only POST requests are allowed!", http.StatusBadRequest)
 		return
@@ -25,7 +30,6 @@ func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// Получение URL из тела запроса
 	originalURL := string(body)
 	if originalURL == "" {
 		http.Error(w, "No URL provided", http.StatusBadRequest)
@@ -36,7 +40,6 @@ func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) 
 	us.URLs[alias] = originalURL
 
 	shortenedURL := fmt.Sprintf(config.FlagBaseURL + "/" + alias)
-	fmt.Print(shortenedURL)
 	contentLength := len(shortenedURL)
 
 	w.Header().Set("Content-Type", "text/plain")

@@ -27,8 +27,8 @@ func TestURLShortener_GetURLHandler(t *testing.T) {
 				"abcdefgh": "practicum.yandex.ru",
 			},
 			want: want{
-				location: "practicum.yandex.ru",
 				code:     http.StatusTemporaryRedirect,
+				location: "http://practicum.yandex.ru",
 			},
 			request: "/abcdefgh",
 		},
@@ -60,8 +60,8 @@ func TestURLShortener_GetURLHandler(t *testing.T) {
 				"abcdefgh1": "https://github.com/stretchr/testify?tab=readme-ov-file",
 			},
 			want: want{
-				location: "https://github.com/stretchr/testify?tab=readme-ov-file",
 				code:     http.StatusTemporaryRedirect,
+				location: "https://github.com/stretchr/testify?tab=readme-ov-file",
 			},
 			request: "/abcdefgh1",
 		},
@@ -71,8 +71,8 @@ func TestURLShortener_GetURLHandler(t *testing.T) {
 				"abcdefgh": "https://megamarket.ru/personal/order/view/",
 			},
 			want: want{
-				location: "https://megamarket.ru/personal/order/view/",
 				code:     http.StatusTemporaryRedirect,
+				location: "https://megamarket.ru/personal/order/view/",
 			},
 			request: "/abcdefgh",
 		},
@@ -82,8 +82,8 @@ func TestURLShortener_GetURLHandler(t *testing.T) {
 				"abcdefghdsghsdheh": "practicum.yandex.ru",
 			},
 			want: want{
-				location: "practicum.yandex.ru",
 				code:     http.StatusTemporaryRedirect,
+				location: "http://practicum.yandex.ru",
 			},
 			request: "/abcdefghdsghsdheh",
 		},

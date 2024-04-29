@@ -6,6 +6,9 @@ import (
 )
 
 func (us *URLShortener) GetURLHandler(w http.ResponseWriter, r *http.Request) {
+	us.mx.RLock()
+	defer us.mx.RUnlock()
+
 	if r.Method != http.MethodGet {
 		http.Error(w, "Only GET requests are allowed!", http.StatusBadRequest)
 		return
@@ -18,6 +21,10 @@ func (us *URLShortener) GetURLHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if originalURL, ok := us.URLs[id]; ok {
+		if !strings.HasPrefix(originalURL, "http://") && !strings.HasPrefix(originalURL, "https://") {
+			// Если протокол отсутствует, добавляем http:// по умолчанию
+			originalURL = "http://" + originalURL
+		}
 		w.Header().Set("Location", originalURL)
 		w.WriteHeader(http.StatusTemporaryRedirect)
 	} else {
