@@ -18,6 +18,7 @@ func Start() (http.Handler, error) {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestLogger)
+	r.Use(middleware.GzipMiddleware)
 	r.Route("/", func(r chi.Router) {
 		r.Post("/", shortener.ShortURLHandler)
 		r.Route("/api/shorten", func(r chi.Router) {
