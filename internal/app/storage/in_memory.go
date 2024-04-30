@@ -17,12 +17,13 @@ type URLs struct {
 
 func CreateFile(path string) error {
 	dir := filepath.Dir(path)
-	err := os.MkdirAll(dir, os.ModePerm)
-	if err != nil {
-		return err
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		if err = os.MkdirAll(dir, 0755); err != nil {
+			return err
+		}
 	}
 
-	file, err := os.OpenFile(path, os.O_CREATE/os.O_RDWR, 0644)
+	file, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {
 		log.Fatalf("Failed to create file: %v", err)
 		return err
