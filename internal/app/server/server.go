@@ -17,9 +17,11 @@ func Start() (http.Handler, error) {
 	shortener := &handlers.URLShortener{
 		URLs: make(map[string]string),
 	}
+
+	storage.CreateFile(config.FlagInMemoryStorage)
 	err := storage.ReadURLsFromFile(config.FlagInMemoryStorage, shortener.URLs)
 	if err != nil {
-		storage.CreateFile(config.FlagInMemoryStorage)
+		log.Printf("Error reading URLs from file: %v", err)
 	}
 	b, err := os.ReadFile(config.FlagInMemoryStorage)
 	log.Println("Storage path: ", config.FlagInMemoryStorage, b)

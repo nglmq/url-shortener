@@ -62,9 +62,9 @@ func WriteURLsToFile(path string, urls map[string]string) error {
 }
 
 func ReadURLsFromFile(path string, urlsMap map[string]string) error {
-	file, err := os.OpenFile(path, os.O_RDONLY|os.O_CREATE, 0644)
+	file, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {
-		return err
+		log.Printf("Failed to open file: %v", err)
 	}
 
 	scanner := bufio.NewScanner(file)
