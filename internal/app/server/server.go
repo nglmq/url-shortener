@@ -14,6 +14,8 @@ import (
 func Start() (http.Handler, error) {
 	config.ParseFlags()
 
+	log.Printf("start path: %s", config.FlagInMemoryStorage)
+
 	shortener := &handlers.URLShortener{
 		URLs: make(map[string]string),
 	}

@@ -16,6 +16,7 @@ type URLs struct {
 }
 
 func CreateFile(path string) error {
+	log.Printf("create path: %s", path)
 	dir := filepath.Dir(path)
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		log.Printf("Директория не существует, попытка создать: %s", dir)
@@ -38,6 +39,7 @@ func CreateFile(path string) error {
 }
 
 func WriteURLsToFile(path string, urls map[string]string) error {
+	log.Printf("write path: %s", path)
 	if path == "" {
 		log.Println("Path for storage is not provided, skipping file operation.")
 		return nil
@@ -67,6 +69,7 @@ func WriteURLsToFile(path string, urls map[string]string) error {
 }
 
 func ReadURLsFromFile(path string, urlsMap map[string]string) error {
+	log.Printf("read path: %s", path)
 	if path == "" {
 		log.Println("Path for storage is not provided, skipping file operation.")
 		return nil
