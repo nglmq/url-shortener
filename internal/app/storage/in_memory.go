@@ -38,6 +38,11 @@ func CreateFile(path string) error {
 }
 
 func WriteURLsToFile(path string, urls map[string]string) error {
+	if path == "" {
+		log.Println("Path for storage is not provided, skipping file operation.")
+		return nil
+	}
+
 	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
@@ -62,6 +67,11 @@ func WriteURLsToFile(path string, urls map[string]string) error {
 }
 
 func ReadURLsFromFile(path string, urlsMap map[string]string) error {
+	if path == "" {
+		log.Println("Path for storage is not provided, skipping file operation.")
+		return nil
+	}
+
 	file, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {
 		log.Printf("Failed to open file: %v", err)
