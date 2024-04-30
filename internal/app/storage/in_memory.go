@@ -9,7 +9,7 @@ import (
 )
 
 type URLs struct {
-	Uuid        string `json:"uuid"`
+	UUID        string `json:"uuid"`
 	ShortURL    string `json:"short_url"`
 	OriginalURL string `json:"original_url"`
 }
@@ -25,7 +25,7 @@ func WriteURLsToFile(path string, urls map[string]string) error {
 	for shortURL, originalURL := range urls {
 		id := uuid.New().String()
 		url := URLs{
-			Uuid:        id,
+			UUID:        id,
 			ShortURL:    shortURL,
 			OriginalURL: originalURL,
 		}

@@ -18,7 +18,8 @@ func Start() (http.Handler, error) {
 	}
 	err := storage.ReadURLsFromFile(config.FlagInMemoryStorage, shortener.URLs)
 	if err != nil {
-		log.Fatalf("Failed to load URLs: %v", err)
+		shortener.URLs = make(map[string]string)
+		log.Println(err)
 	}
 
 	r := chi.NewRouter()
