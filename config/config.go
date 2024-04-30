@@ -2,7 +2,6 @@ package config
 
 import (
 	"flag"
-	"github.com/nglmq/url-shortener/internal/app/storage"
 	"os"
 )
 
@@ -39,12 +38,9 @@ func ParseFlags() {
 	envInMemoryStorage := os.Getenv("FILE_STORAGE_PATH")
 	if envInMemoryStorage != "" {
 		FlagInMemoryStorage = envInMemoryStorage
-		storage.CreateNewFile(FlagInMemoryStorage)
 	} else if FlagInMemoryStorage != "" {
-		storage.CreateNewFile(FlagInMemoryStorage)
 		return
 	} else {
 		FlagInMemoryStorage = "/tmp/short-url-db.json"
-		storage.CreateNewFile(FlagInMemoryStorage)
 	}
 }
