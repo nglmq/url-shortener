@@ -17,11 +17,12 @@ type URLs struct {
 
 func CreateFile(path string) error {
 	dir := filepath.Dir(path)
-	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+	err := os.MkdirAll(dir, os.ModePerm)
+	if err != nil {
 		return err
 	}
 
-	file, err := os.Create(path)
+	file, err := os.OpenFile(path, os.O_CREATE/os.O_RDWR, 0644)
 	if err != nil {
 		log.Fatalf("Failed to create file: %v", err)
 		return err
@@ -33,7 +34,7 @@ func CreateFile(path string) error {
 }
 
 func WriteURLsToFile(path string, urls map[string]string) error {
-	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
@@ -57,7 +58,7 @@ func WriteURLsToFile(path string, urls map[string]string) error {
 }
 
 func ReadURLsFromFile(path string, urlsMap map[string]string) error {
-	file, err := os.OpenFile(path, os.O_RDONLY|os.O_CREATE, 0666)
+	file, err := os.OpenFile(path, os.O_RDONLY|os.O_CREATE, 0644)
 	if err != nil {
 		return err
 	}
