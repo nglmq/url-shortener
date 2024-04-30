@@ -46,6 +46,7 @@ func (us *URLShortener) JSONHandler(w http.ResponseWriter, r *http.Request) {
 
 	alias := random.NewRandomURL()
 	us.URLs[alias] = requestJSON.URL
+	storage.WriteURLsToFile(config.FlagInMemoryStorage, us.URLs)
 
 	shortenedURL := fmt.Sprintf(config.FlagBaseURL + "/" + alias)
 	contentLength := len(shortenedURL)
@@ -65,5 +66,5 @@ func (us *URLShortener) JSONHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Length", strconv.Itoa(contentLength))
 	w.Write(responseData)
 
-	storage.WriteURLsToFile(config.FlagInMemoryStorage, us.URLs)
+	//	storage.WriteURLsToFile(config.FlagInMemoryStorage, us.URLs)
 }

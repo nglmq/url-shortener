@@ -6,7 +6,9 @@ import (
 	"github.com/nglmq/url-shortener/internal/app/handlers"
 	"github.com/nglmq/url-shortener/internal/app/middleware"
 	"github.com/nglmq/url-shortener/internal/app/storage"
+	"log"
 	"net/http"
+	"os"
 )
 
 func Start() (http.Handler, error) {
@@ -19,7 +21,8 @@ func Start() (http.Handler, error) {
 	if err != nil {
 		storage.CreateFile(config.FlagInMemoryStorage)
 	}
-
+	b, err := os.ReadFile(config.FlagInMemoryStorage)
+	log.Println("Storage path: ", config.FlagInMemoryStorage, b)
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestLogger)
