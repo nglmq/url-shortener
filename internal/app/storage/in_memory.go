@@ -16,21 +16,23 @@ type URLs struct {
 }
 
 func CreateFile(path string) error {
-	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	dir := filepath.Dir(path)
+	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+		return err
+	}
+
+	file, err := os.Create(path)
 	if err != nil {
 		log.Fatalf("Failed to create file: %v", err)
 		return err
 	}
 	defer file.Close()
 
+	log.Printf("file created %s", path)
 	return nil
 }
 
 func WriteURLsToFile(path string, urls map[string]string) error {
-	dir := filepath.Dir(path)
-	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-		return err
-	}
 	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		return err
