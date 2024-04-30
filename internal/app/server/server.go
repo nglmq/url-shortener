@@ -5,15 +5,21 @@ import (
 	"github.com/nglmq/url-shortener/config"
 	"github.com/nglmq/url-shortener/internal/app/handlers"
 	"github.com/nglmq/url-shortener/internal/app/middleware"
+	"github.com/nglmq/url-shortener/internal/app/storage"
+	"log"
 	"net/http"
 )
 
 func Start() (http.Handler, error) {
+	config.ParseFlags()
+
 	shortener := &handlers.URLShortener{
 		URLs: make(map[string]string),
 	}
-
-	config.ParseFlags()
+	err := storage.ReadURLsFromFile(config.FlagInMemoryStorage, shortener.URLs)
+	if err != nil {
+		log.Fatalf("Failed to load URLs: %v", err)
+	}
 
 	r := chi.NewRouter()
 

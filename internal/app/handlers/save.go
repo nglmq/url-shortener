@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/nglmq/url-shortener/config"
 	"github.com/nglmq/url-shortener/internal/app/random"
+	"github.com/nglmq/url-shortener/internal/app/storage"
 	"io"
 	"net/http"
 	"strconv"
@@ -46,4 +47,6 @@ func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) 
 	w.Header().Set("Content-Length", strconv.Itoa(contentLength))
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte(shortenedURL))
+
+	storage.WriteURLsToFile(config.FlagInMemoryStorage, us.URLs)
 }
