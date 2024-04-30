@@ -18,9 +18,12 @@ type URLs struct {
 func CreateFile(path string) error {
 	dir := filepath.Dir(path)
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		if err = os.MkdirAll(dir, 0755); err != nil {
+		log.Printf("Директория не существует, попытка создать: %s", dir)
+		if err = os.MkdirAll(dir, 0644); err != nil {
+			log.Printf("Не удалось создать директорию: %v", err)
 			return err
 		}
+		log.Println("Директория успешно создана")
 	}
 
 	file, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0644)
