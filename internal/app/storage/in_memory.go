@@ -27,14 +27,14 @@ func CreateFile(path string) error {
 		log.Println("Директория успешно создана")
 	}
 
-	file, err := os.Create(path) //os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0644)
-	if err != nil {
-		log.Fatalf("Failed to create file: %v", err)
-		return err
-	}
-	defer file.Close()
-
-	log.Printf("file created %s", path)
+	//file, err := os.Create(path) //os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0644)
+	//if err != nil {
+	//	log.Fatalf("Failed to create file: %v", err)
+	//	return err
+	//}
+	//defer file.Close()
+	//
+	//log.Printf("file created %s", path)
 	return nil
 }
 
