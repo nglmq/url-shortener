@@ -20,14 +20,14 @@ func CreateFile(path string) error {
 	dir := filepath.Dir(path)
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		log.Printf("Директория не существует, попытка создать: %s", dir)
-		if err = os.MkdirAll(dir, 0644); err != nil {
+		if err = os.MkdirAll(dir, 0755); err != nil {
 			log.Printf("Не удалось создать директорию: %v", err)
 			return err
 		}
 		log.Println("Директория успешно создана")
 	}
 
-	file, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0644)
+	file, err := os.Create(path) //os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {
 		log.Fatalf("Failed to create file: %v", err)
 		return err
@@ -89,6 +89,6 @@ func ReadURLsFromFile(path string, urlsMap map[string]string) error {
 
 		urlsMap[url.ShortURL] = url.OriginalURL
 	}
-
+	log.Println("URLs read from file successfully")
 	return nil
 }

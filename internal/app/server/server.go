@@ -26,7 +26,7 @@ func Start() (http.Handler, error) {
 		if err != nil {
 			log.Printf("Error reading URLs from file: %v", err)
 		}
-		b, err := os.ReadFile(config.FlagInMemoryStorage)
+		b, _ := os.ReadFile(config.FlagInMemoryStorage)
 		log.Println("Storage path: ", config.FlagInMemoryStorage, b)
 	}
 
