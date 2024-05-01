@@ -14,13 +14,11 @@ import (
 func Start() (http.Handler, error) {
 	config.ParseFlags()
 
-	log.Printf("start path: %s", config.FlagInMemoryStorage)
-
-	shortener := &handlers.URLShortener{
-		URLs: make(map[string]string),
-	}
-
 	if config.FlagInMemoryStorage != "" {
+		shortener := &handlers.URLShortener{
+			URLs: make(map[string]string),
+		}
+
 		storage.CreateFile(config.FlagInMemoryStorage)
 		err := storage.ReadURLsFromFile(config.FlagInMemoryStorage, shortener.URLs)
 		if err != nil {
@@ -29,6 +27,22 @@ func Start() (http.Handler, error) {
 		b, err := os.ReadFile(config.FlagInMemoryStorage)
 		log.Println("Storage path: ", config.FlagInMemoryStorage, b)
 	}
+
+	log.Printf("start path: %s", config.FlagInMemoryStorage)
+
+	shortener := &handlers.URLShortener{
+		URLs: make(map[string]string),
+	}
+
+	//if config.FlagInMemoryStorage != "" {
+	//	storage.CreateFile(config.FlagInMemoryStorage)
+	//	err := storage.ReadURLsFromFile(config.FlagInMemoryStorage, shortener.URLs)
+	//	if err != nil {
+	//		log.Printf("Error reading URLs from file: %v", err)
+	//	}
+	//	b, err := os.ReadFile(config.FlagInMemoryStorage)
+	//	log.Println("Storage path: ", config.FlagInMemoryStorage, b)
+	//}
 
 	r := chi.NewRouter()
 

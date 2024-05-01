@@ -39,7 +39,10 @@ func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) 
 
 	alias := random.NewRandomURL()
 	us.URLs[alias] = originalURL
-	storage.WriteURLsToFile(config.FlagInMemoryStorage, us.URLs)
+
+	if config.FlagInMemoryStorage != "" {
+		storage.WriteURLsToFile(config.FlagInMemoryStorage, us.URLs)
+	}
 
 	shortenedURL := fmt.Sprintf(config.FlagBaseURL + "/" + alias)
 	contentLength := len(shortenedURL)
