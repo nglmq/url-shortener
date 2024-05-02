@@ -17,7 +17,9 @@ type URLs struct {
 
 func CreateFile(path string) error {
 	log.Printf("create path: %s", path)
-	dir := filepath.Dir(path)
+
+	dir := "." + filepath.Dir(path)
+	log.Printf("dir: %s", dir)
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		log.Printf("Директория не существует, попытка создать: %s", dir)
 		if err = os.MkdirAll(dir, 0644); err != nil {
@@ -46,7 +48,7 @@ func WriteURLsToFile(path string, urls map[string]string) error {
 		return nil
 	}
 
-	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+	file, err := os.OpenFile("./."+path, os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
 		return err
 	}
@@ -76,7 +78,7 @@ func ReadURLsFromFile(path string, urlsMap map[string]string) error {
 		return nil
 	}
 
-	file, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0644)
+	file, err := os.OpenFile("./."+path, os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {
 		log.Printf("Failed to open file: %v", err)
 	}
