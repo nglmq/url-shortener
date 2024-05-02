@@ -20,11 +20,13 @@ func CreateFile(path string) error {
 	dir := filepath.Dir(path)
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		log.Printf("Директория не существует, попытка создать: %s", dir)
-		if err = os.MkdirAll(dir, 0755); err != nil {
+		if err = os.MkdirAll(dir, 0644); err != nil {
 			log.Printf("Не удалось создать директорию: %v", err)
 			return err
 		}
 		log.Println("Директория успешно создана")
+		log.Println(dir)
+		log.Println(filepath.Abs(dir))
 	}
 
 	//file, err := os.Create(path) //os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0644)
@@ -33,8 +35,7 @@ func CreateFile(path string) error {
 	//	return err
 	//}
 	//defer file.Close()
-	//
-	//log.Printf("file created %s", path)
+
 	return nil
 }
 
@@ -79,7 +80,6 @@ func ReadURLsFromFile(path string, urlsMap map[string]string) error {
 	if err != nil {
 		log.Printf("Failed to open file: %v", err)
 	}
-	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
