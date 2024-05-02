@@ -27,7 +27,7 @@ func Start() (http.Handler, error) {
 			log.Printf("Error reading URLs from file: %v", err)
 		}
 		b, _ := os.ReadFile(config.FlagInMemoryStorage)
-		log.Println("Storage path: ", config.FlagInMemoryStorage, b)
+		log.Println("Storage path: ", config.FlagInMemoryStorage, string(b))
 	}
 
 	r := chi.NewRouter()

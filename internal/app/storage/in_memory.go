@@ -45,7 +45,7 @@ func WriteURLsToFile(path string, urls map[string]string) error {
 		return nil
 	}
 
-	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
 		return err
 	}
