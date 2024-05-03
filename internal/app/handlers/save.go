@@ -8,18 +8,13 @@ import (
 	"io"
 	"net/http"
 	"strconv"
-	"sync"
 )
 
 type URLShortener struct {
-	URLs map[string]string
-	mx   sync.RWMutex
+	Store storage.URLStore
 }
 
 func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) {
-	us.mx.Lock()
-	defer us.mx.Unlock()
-
 	if r.Method != http.MethodPost {
 		http.Error(w, "Only POST requests are allowed!", http.StatusBadRequest)
 		return
@@ -38,11 +33,12 @@ func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	alias := random.NewRandomURL()
-	us.URLs[alias] = originalURL
-
-	if config.FlagInMemoryStorage != "" {
-		storage.WriteURLsToFile(config.FlagInMemoryStorage, us.URLs)
+	err = us.Store.Add(alias, originalURL)
+	if err != nil {
+		http.Error(w, "Error saving URL", http.StatusBadRequest)
+		return
 	}
+	storage.WriteURLsToFile(config.FlagInMemoryStorage, alias, originalURL)
 
 	shortenedURL := fmt.Sprintf(config.FlagBaseURL + "/" + alias)
 	contentLength := len(shortenedURL)

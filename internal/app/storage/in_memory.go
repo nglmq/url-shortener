@@ -1,97 +1,42 @@
 package storage
 
 import (
-	"bufio"
-	"encoding/json"
-	"github.com/google/uuid"
-	"log"
-	"os"
-	"path/filepath"
+	"fmt"
+	"sync"
 )
 
-type URLs struct {
-	UUID        string `json:"uuid"`
-	ShortURL    string `json:"short_url"`
-	OriginalURL string `json:"original_url"`
+type URLStore interface {
+	Get(id string) (string, error)
+	Add(id string, url string) error
 }
 
-func CreateFile(path string) error {
-	log.Printf("create path: %s", path)
-
-	dir := filepath.Dir(path)
-	log.Printf("dir: %s", dir)
-	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		log.Printf("Директория не существует, попытка создать: %s", dir)
-		if err = os.MkdirAll(dir, 0644); err != nil {
-			log.Printf("Не удалось создать директорию: %v", err)
-			return err
-		}
-		log.Println("Директория успешно создана")
-		log.Println(dir)
-		log.Println(filepath.Abs(dir))
-	}
-
-	//file, err := os.Create(path) //os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0644)
-	//if err != nil {
-	//	log.Fatalf("Failed to create file: %v", err)
-	//	return err
-	//}
-	//defer file.Close()
-
-	return nil
+type MemoryURLStore struct {
+	URLs map[string]string
+	mx   sync.RWMutex
 }
 
-func WriteURLsToFile(path string, urls map[string]string) error {
-	log.Printf("write path: %s", path)
-	if path == "" {
-		log.Println("Path for storage is not provided, skipping file operation.")
-		return nil
+func NewMemoryURLStore() *MemoryURLStore {
+	return &MemoryURLStore{
+		URLs: make(map[string]string),
 	}
-
-	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0644)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	encoder := json.NewEncoder(file)
-	for shortURL, originalURL := range urls {
-		id := uuid.New().String()
-		url := URLs{
-			UUID:        id,
-			ShortURL:    shortURL,
-			OriginalURL: originalURL,
-		}
-		if err := encoder.Encode(url); err != nil {
-			log.Printf("Error encoding URL: %v", err)
-			return err
-		}
-	}
-
-	return nil
 }
 
-func ReadURLsFromFile(path string, urlsMap map[string]string) error {
-	log.Printf("read path: %s", path)
-	if path == "" {
-		log.Println("Path for storage is not provided, skipping file operation.")
-		return nil
-	}
+func (s *MemoryURLStore) Get(id string) (string, error) {
+	s.mx.RLock()
+	defer s.mx.RUnlock()
 
-	file, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0644)
-	if err != nil {
-		log.Printf("Failed to open file: %v", err)
+	url, exists := s.URLs[id]
+	if !exists {
+		return "", fmt.Errorf("short URL not found")
 	}
+	return url, nil
+}
 
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		var url URLs
-		if err := json.Unmarshal(scanner.Bytes(), &url); err != nil {
-			return err
-		}
+func (s *MemoryURLStore) Add(id string, url string) error {
+	s.mx.Lock()
+	defer s.mx.Unlock()
 
-		urlsMap[url.ShortURL] = url.OriginalURL
-	}
-	log.Println("URLs read from file successfully")
+	s.URLs[id] = url
+
 	return nil
 }

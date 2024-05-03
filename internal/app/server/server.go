@@ -8,7 +8,6 @@ import (
 	"github.com/nglmq/url-shortener/internal/app/storage"
 	"log"
 	"net/http"
-	"os"
 )
 
 func Start() (http.Handler, error) {
@@ -16,18 +15,25 @@ func Start() (http.Handler, error) {
 
 	log.Printf("start path: %s", config.FlagInMemoryStorage)
 
-	shortener := &handlers.URLShortener{
-		URLs: make(map[string]string),
+	// Initialize URL storage
+	store := storage.NewMemoryURLStore()
+
+	// Optional: Load URLs from a file if a path is provided
+	if config.FlagInMemoryStorage != "" {
+		err := storage.CreateFile(config.FlagInMemoryStorage)
+		if err != nil {
+			return nil, err
+		}
+
+		if err := storage.ReadURLsFromFile(config.FlagInMemoryStorage, store.URLs); err != nil {
+			log.Printf("Error reading URLs from file: %v", err)
+			return nil, err
+		}
 	}
 
-	if config.FlagInMemoryStorage != "" {
-		storage.CreateFile(config.FlagInMemoryStorage)
-		err := storage.ReadURLsFromFile(config.FlagInMemoryStorage, shortener.URLs)
-		if err != nil {
-			log.Printf("Error reading URLs from file: %v", err)
-		}
-		b, _ := os.ReadFile(config.FlagInMemoryStorage)
-		log.Println("Storage path: ", config.FlagInMemoryStorage, string(b))
+	// Create URLShortener handler with the initialized store
+	shortener := &handlers.URLShortener{
+		Store: store,
 	}
 
 	r := chi.NewRouter()
