@@ -7,7 +7,14 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sync"
 )
+
+type FileStorage struct {
+	file   *os.File
+	writer *bufio.Writer
+	mx     sync.RWMutex
+}
 
 type URLs struct {
 	UUID        string `json:"uuid"`
@@ -15,79 +22,66 @@ type URLs struct {
 	OriginalURL string `json:"original_url"`
 }
 
-func CreateFile(path string) error {
-	log.Printf("create path: %s", path)
-
-	dir := filepath.Dir(path)
-	log.Printf("dir: %s", dir)
+func NewFileStorage(filename string) (*FileStorage, error) {
+	dir := filepath.Dir(filename)
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		log.Printf("Директория не существует, попытка создать: %s", dir)
-		if err = os.MkdirAll(dir, 0644); err != nil {
-			log.Printf("Не удалось создать директорию: %v", err)
-			return err
-		}
-		log.Println("Директория успешно создана")
-		log.Println(dir)
-		log.Println(filepath.Abs(dir))
+		os.MkdirAll(dir, 0755) // Creates the directory with full permissions
 	}
 
-	//file, err := os.Create(path) //os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0644)
-	//if err != nil {
-	//	log.Fatalf("Failed to create file: %v", err)
-	//	return err
-	//}
-	//defer file.Close()
-
-	return nil
+	log.Printf("Initializing File Storage with filename: %s", filename)
+	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
+	if err != nil {
+		log.Printf("Error opening file: %v", err)
+		return nil, err
+	}
+	writer := bufio.NewWriter(file)
+	return &FileStorage{file: file, writer: writer}, nil
 }
 
-func WriteURLsToFile(path, alias, url string) error {
-	log.Printf("write path: %s", path)
-	if path == "" {
-		log.Println("Path for storage is not provided, skipping file operation.")
-		return nil
-	}
+func (f *FileStorage) WriteURLsToFile(alias, url string) error {
+	f.mx.Lock()
+	defer f.mx.Unlock()
 
-	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0644)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-	log.Println(filepath.Abs(filepath.Dir(path)))
-
-	encoder := json.NewEncoder(file)
-
-	id := uuid.New().String()
-	newData := URLs{
-		UUID:        id,
+	log.Printf("Writing to file: alias=%s, url=%s", alias, url)
+	urls := URLs{
+		UUID:        uuid.New().String(),
 		ShortURL:    alias,
 		OriginalURL: url,
 	}
-	if err := encoder.Encode(newData); err != nil {
-		log.Printf("Error encoding URL: %v", err)
+
+	data, err := json.Marshal(urls)
+	if err != nil {
+		log.Printf("Error marshalling JSON: %v", err)
 		return err
 	}
 
+	if _, err := f.writer.Write(data); err != nil {
+		log.Printf("Error writing data to file: %v", err)
+		return err
+	}
+
+	if err := f.writer.WriteByte('\n'); err != nil {
+		log.Printf("Error writing newline to file: %v", err)
+		return err
+	}
+
+	if err := f.writer.Flush(); err != nil {
+		log.Printf("Error flushing writer: %v", err)
+		return err
+	}
+
+	log.Printf("Data written and flushed successfully")
 	return nil
 }
 
-func ReadURLsFromFile(path string, urlsMap map[string]string) error {
-	log.Printf("read path: %s", path)
-	if path == "" {
-		log.Println("Path for storage is not provided, skipping file operation.")
-		return nil
-	}
+func (f *FileStorage) Close() error {
+	log.Println("Closing file storage")
+	return f.file.Close()
+}
 
-	dir := filepath.Dir(path)
-	log.Println(filepath.Abs(dir))
+func (f *FileStorage) ReadURLsFromFile(urlsMap map[string]string) error {
+	scanner := bufio.NewScanner(f.file)
 
-	file, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0644)
-	if err != nil {
-		log.Printf("Failed to open file: %v", err)
-		return err
-	}
-
-	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		var url URLs
 		if err := json.Unmarshal(scanner.Bytes(), &url); err != nil {
@@ -96,6 +90,13 @@ func ReadURLsFromFile(path string, urlsMap map[string]string) error {
 
 		urlsMap[url.ShortURL] = url.OriginalURL
 	}
+
 	log.Println("URLs read from file successfully")
+
 	return nil
 }
+
+//func (f *FileStorage) Close() error {
+//	// закрываем файл
+//	return f.file.Close()
+//}

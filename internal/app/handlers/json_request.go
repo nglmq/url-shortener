@@ -6,7 +6,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/nglmq/url-shortener/config"
 	"github.com/nglmq/url-shortener/internal/app/random"
-	"github.com/nglmq/url-shortener/internal/app/storage"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -50,7 +49,12 @@ func (us *URLShortener) JSONHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error saving URL JSON ", http.StatusBadRequest)
 		return
 	}
-	storage.WriteURLsToFile(config.FlagInMemoryStorage, alias, requestJSON.URL)
+	if us.FileStorage != nil {
+		if err := us.FileStorage.WriteURLsToFile(alias, requestJSON.URL); err != nil {
+			http.Error(w, "Error writing URL to file", http.StatusInternalServerError)
+			return
+		}
+	}
 
 	shortenedURL := fmt.Sprintf(config.FlagBaseURL + "/" + alias)
 	contentLength := len(shortenedURL)

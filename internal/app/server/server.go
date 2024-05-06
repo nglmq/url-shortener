@@ -15,26 +15,30 @@ func Start() (http.Handler, error) {
 
 	log.Printf("start path: %s", config.FlagInMemoryStorage)
 
-	// Initialize URL storage
+	//// Initialize URL storage
 	store := storage.NewMemoryURLStore()
+	shortener := &handlers.URLShortener{
+		Store: store,
+	}
 
 	// Optional: Load URLs from a file if a path is provided
 	if config.FlagInMemoryStorage != "" {
-		err := storage.CreateFile(config.FlagInMemoryStorage)
+		fileStore, err := storage.NewFileStorage(config.FlagInMemoryStorage)
 		if err != nil {
 			return nil, err
 		}
+		shortener.FileStorage = fileStore
 
-		if err := storage.ReadURLsFromFile(config.FlagInMemoryStorage, store.URLs); err != nil {
+		if err = fileStore.ReadURLsFromFile(store.URLs); err != nil {
 			log.Printf("Error reading URLs from file: %v", err)
 			return nil, err
 		}
 	}
 
 	// Create URLShortener handler with the initialized store
-	shortener := &handlers.URLShortener{
-		Store: store,
-	}
+	//shortener := &handlers.URLShortener{
+	//	Store: store,
+	//}
 
 	r := chi.NewRouter()
 
