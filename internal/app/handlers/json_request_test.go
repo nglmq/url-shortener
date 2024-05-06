@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/nglmq/url-shortener/internal/app/storage"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -12,7 +13,9 @@ import (
 )
 
 func TestURLShortener_JSONHandler(t *testing.T) {
-	us := URLShortener{URLs: make(map[string]string)}
+	us := URLShortener{
+		Store: storage.NewMemoryURLStore(),
+	}
 
 	ts := httptest.NewServer(http.HandlerFunc(us.JSONHandler))
 	defer ts.Close()

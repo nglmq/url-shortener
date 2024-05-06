@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/nglmq/url-shortener/internal/app/storage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"io"
@@ -56,7 +57,9 @@ func TestURLShortener_ShortURLHandler(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			URLShortenerTest := URLShortener{URLs: make(map[string]string)}
+			store := storage.NewMemoryURLStore()
+			URLShortenerTest := URLShortener{Store: store}
+
 			request := httptest.NewRequest(http.MethodPost, tt.request, strings.NewReader(tt.requestBody))
 			w := httptest.NewRecorder()
 
