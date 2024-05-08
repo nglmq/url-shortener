@@ -6,7 +6,6 @@ import (
 	"github.com/google/uuid"
 	"log"
 	"os"
-	"path/filepath"
 	"sync"
 )
 
@@ -23,13 +22,13 @@ type URLs struct {
 }
 
 func NewFileStorage(filename string) (*FileStorage, error) {
-	dir := filepath.Dir(filename)
-	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		os.MkdirAll(dir, 0755) // Creates the directory with full permissions
-	}
+	//dir := filepath.Dir(filename)
+	//if _, err := os.Stat(dir); os.IsNotExist(err) {
+	//	os.MkdirAll(dir, 0755) // Creates the directory with full permissions
+	//}
 
 	log.Printf("Initializing File Storage with filename: %s", filename)
-	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
+	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Printf("Error opening file: %v", err)
 		return nil, err
@@ -95,8 +94,3 @@ func (f *FileStorage) ReadURLsFromFile(urlsMap map[string]string) error {
 
 	return nil
 }
-
-//func (f *FileStorage) Close() error {
-//	// закрываем файл
-//	return f.file.Close()
-//}

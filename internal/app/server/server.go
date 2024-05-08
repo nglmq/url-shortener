@@ -15,13 +15,11 @@ func Start() (http.Handler, error) {
 
 	log.Printf("start path: %s", config.FlagInMemoryStorage)
 
-	//// Initialize URL storage
 	store := storage.NewMemoryURLStore()
 	shortener := &handlers.URLShortener{
 		Store: store,
 	}
 
-	// Optional: Load URLs from a file if a path is provided
 	if config.FlagInMemoryStorage != "" {
 		fileStore, err := storage.NewFileStorage(config.FlagInMemoryStorage)
 		if err != nil {
@@ -34,11 +32,6 @@ func Start() (http.Handler, error) {
 			return nil, err
 		}
 	}
-
-	// Create URLShortener handler with the initialized store
-	//shortener := &handlers.URLShortener{
-	//	Store: store,
-	//}
 
 	r := chi.NewRouter()
 
