@@ -20,10 +20,6 @@ func ParseFlags() {
 	envRunAddr := os.Getenv("SERVER_ADDRESS")
 	if envRunAddr != "" {
 		FlagRunAddr = envRunAddr
-	} else if FlagRunAddr != "" {
-		return
-	} else {
-		FlagRunAddr = "localhost:8080"
 	}
 
 	envBaseURL := os.Getenv("BASE_URL")
