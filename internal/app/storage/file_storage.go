@@ -24,7 +24,7 @@ type URLs struct {
 func NewFileStorage(filename string) (*FileStorage, error) {
 	//dir := filepath.Dir(filename)
 	//if _, err := os.Stat(dir); os.IsNotExist(err) {
-	//	os.MkdirAll(dir, 0755) // Creates the directory with full permissions
+	//	os.MkdirAll(dir, 0755)
 	//}
 
 	log.Printf("Initializing File Storage with filename: %s", filename)
