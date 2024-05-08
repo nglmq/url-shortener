@@ -73,6 +73,4 @@ func (us *URLShortener) JSONHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Length", strconv.Itoa(contentLength))
 	w.Write(responseData)
-
-	//	storage.WriteURLsToFile(config.FlagInMemoryStorage, us.URLs)
 }

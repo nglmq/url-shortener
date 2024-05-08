@@ -25,18 +25,10 @@ func ParseFlags() {
 	envBaseURL := os.Getenv("BASE_URL")
 	if envBaseURL != "" {
 		FlagBaseURL = envBaseURL
-		//} else if FlagBaseURL != "" {
-		//	return
-		//} else {
-		//	FlagBaseURL = "http://localhost:8080"
 	}
 
 	envInMemoryStorage := os.Getenv("FILE_STORAGE_PATH")
 	if envInMemoryStorage != "" {
 		FlagInMemoryStorage = envInMemoryStorage
-	} else if FlagInMemoryStorage != "" {
-		return
-	} else {
-		FlagInMemoryStorage = ""
 	}
 }

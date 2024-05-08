@@ -6,7 +6,6 @@ import (
 	"github.com/nglmq/url-shortener/internal/app/random"
 	"github.com/nglmq/url-shortener/internal/app/storage"
 	"io"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -40,13 +39,11 @@ func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, "Error saving URL", http.StatusBadRequest)
 		return
 	}
-	if us.FileStorage != nil { // Ensure FileStorage is not nil before using it
+	if us.FileStorage != nil {
 		if err := us.FileStorage.WriteURLsToFile(alias, originalURL); err != nil {
 			http.Error(w, "Error writing URL to file", http.StatusInternalServerError)
 			return
 		}
-	} else {
-		log.Println("FileStorage is nil, skipping file write")
 	}
 
 	shortenedURL := fmt.Sprintf(config.FlagBaseURL + "/" + alias)

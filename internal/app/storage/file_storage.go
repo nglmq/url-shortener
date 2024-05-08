@@ -22,17 +22,12 @@ type URLs struct {
 }
 
 func NewFileStorage(filename string) (*FileStorage, error) {
-	//dir := filepath.Dir(filename)
-	//if _, err := os.Stat(dir); os.IsNotExist(err) {
-	//	os.MkdirAll(dir, 0755)
-	//}
-
-	log.Printf("Initializing File Storage with filename: %s", filename)
 	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Printf("Error opening file: %v", err)
 		return nil, err
 	}
+
 	writer := bufio.NewWriter(file)
 	return &FileStorage{file: file, writer: writer}, nil
 }
@@ -41,7 +36,6 @@ func (f *FileStorage) WriteURLsToFile(alias, url string) error {
 	f.mx.Lock()
 	defer f.mx.Unlock()
 
-	log.Printf("Writing to file: alias=%s, url=%s", alias, url)
 	urls := URLs{
 		UUID:        uuid.New().String(),
 		ShortURL:    alias,
@@ -69,12 +63,10 @@ func (f *FileStorage) WriteURLsToFile(alias, url string) error {
 		return err
 	}
 
-	log.Printf("Data written and flushed successfully")
 	return nil
 }
 
 func (f *FileStorage) Close() error {
-	log.Println("Closing file storage")
 	return f.file.Close()
 }
 
@@ -89,8 +81,6 @@ func (f *FileStorage) ReadURLsFromFile(urlsMap map[string]string) error {
 
 		urlsMap[url.ShortURL] = url.OriginalURL
 	}
-
-	log.Println("URLs read from file successfully")
 
 	return nil
 }
