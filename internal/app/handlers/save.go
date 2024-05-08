@@ -4,13 +4,15 @@ import (
 	"fmt"
 	"github.com/nglmq/url-shortener/config"
 	"github.com/nglmq/url-shortener/internal/app/random"
+	"github.com/nglmq/url-shortener/internal/app/storage"
 	"io"
 	"net/http"
 	"strconv"
 )
 
 type URLShortener struct {
-	URLs map[string]string
+	Store       storage.URLStore
+	FileStorage *storage.FileStorage
 }
 
 func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) {
@@ -25,7 +27,6 @@ func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// Получение URL из тела запроса
 	originalURL := string(body)
 	if originalURL == "" {
 		http.Error(w, "No URL provided", http.StatusBadRequest)
@@ -33,10 +34,19 @@ func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	alias := random.NewRandomURL()
-	us.URLs[alias] = originalURL
+	err = us.Store.Add(alias, originalURL)
+	if err != nil {
+		http.Error(w, "Error saving URL", http.StatusBadRequest)
+		return
+	}
+	if us.FileStorage != nil {
+		if err := us.FileStorage.WriteURLsToFile(alias, originalURL); err != nil {
+			http.Error(w, "Error writing URL to file", http.StatusInternalServerError)
+			return
+		}
+	}
 
 	shortenedURL := fmt.Sprintf(config.FlagBaseURL + "/" + alias)
-	fmt.Print(shortenedURL)
 	contentLength := len(shortenedURL)
 
 	w.Header().Set("Content-Type", "text/plain")
