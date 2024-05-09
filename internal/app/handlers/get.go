@@ -17,10 +17,15 @@ func (us *URLShortener) GetURLHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if originalURL, ok := us.URLs[id]; ok {
-		w.Header().Set("Location", originalURL)
-		w.WriteHeader(http.StatusTemporaryRedirect)
-	} else {
-		http.Error(w, "Short URL not found", http.StatusBadRequest)
+	originalURL, err := us.Store.Get(id)
+	if err != nil {
+		http.Error(w, "URL not found", http.StatusBadRequest)
+		return
 	}
+
+	if !strings.HasPrefix(originalURL, "http://") && !strings.HasPrefix(originalURL, "https://") {
+		originalURL = "http://" + originalURL
+	}
+	w.Header().Set("Location", originalURL)
+	w.WriteHeader(http.StatusTemporaryRedirect)
 }
