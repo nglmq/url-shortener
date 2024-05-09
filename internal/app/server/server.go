@@ -6,6 +6,7 @@ import (
 	"github.com/nglmq/url-shortener/internal/app/handlers"
 	"github.com/nglmq/url-shortener/internal/app/middleware"
 	"github.com/nglmq/url-shortener/internal/app/storage"
+	"github.com/nglmq/url-shortener/internal/app/storage/db"
 	"log"
 	"net/http"
 )
@@ -20,7 +21,19 @@ func Start() (http.Handler, error) {
 		Store: store,
 	}
 
-	if config.FlagInMemoryStorage != "" {
+	//if config.DBConnection != "" {
+	//	dbStorage, err := db.InitDBConnection()
+	//	if err != nil {
+	//		return nil, err
+	//	}
+	//
+	//	shortener = &handlers.URLShortener{
+	//		Store: store,
+	//		DBStorage: dbStorage,
+	//	}
+	//}
+
+	if config.FlagInMemoryStorage != "" && config.DBConnection == "" {
 		fileStore, err := storage.NewFileStorage(config.FlagInMemoryStorage)
 		if err != nil {
 			return nil, err
@@ -30,6 +43,16 @@ func Start() (http.Handler, error) {
 		if err = fileStore.ReadURLsFromFile(store.URLs); err != nil {
 			log.Printf("Error reading URLs from file: %v", err)
 			return nil, err
+		}
+	} else {
+		dbStorage, err := db.InitDBConnection()
+		if err != nil {
+			return nil, err
+		}
+
+		shortener = &handlers.URLShortener{
+			Store:     store,
+			DBStorage: dbStorage,
 		}
 	}
 
@@ -43,6 +66,7 @@ func Start() (http.Handler, error) {
 			r.Post("/", shortener.JSONHandler)
 		})
 		r.Get("/{id}", shortener.GetURLHandler)
+		r.Get("/ping", shortener.PingDB)
 	})
 
 	return r, nil

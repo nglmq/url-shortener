@@ -9,12 +9,14 @@ var (
 	FlagRunAddr         string
 	FlagBaseURL         string
 	FlagInMemoryStorage string
+	DBConnection        string
 )
 
 func ParseFlags() {
 	flag.StringVar(&FlagRunAddr, "a", "localhost:8080", "address and port to run server")
 	flag.StringVar(&FlagBaseURL, "b", "http://localhost:8080", "base url")
 	flag.StringVar(&FlagInMemoryStorage, "f", "/tmp/short-url-db.json", "in memory storage")
+	flag.StringVar(&DBConnection, "d", "postgres://postgres:postgres@localhost:5432/postgres", "postgres connection url")
 	flag.Parse()
 
 	envRunAddr := os.Getenv("SERVER_ADDRESS")
@@ -30,5 +32,10 @@ func ParseFlags() {
 	envInMemoryStorage := os.Getenv("FILE_STORAGE_PATH")
 	if envInMemoryStorage != "" {
 		FlagInMemoryStorage = envInMemoryStorage
+	}
+
+	envDBConnection := os.Getenv("DATABASE_DSN")
+	if envDBConnection != "" {
+		DBConnection = envDBConnection
 	}
 }

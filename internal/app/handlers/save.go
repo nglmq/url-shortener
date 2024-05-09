@@ -5,6 +5,7 @@ import (
 	"github.com/nglmq/url-shortener/config"
 	"github.com/nglmq/url-shortener/internal/app/random"
 	"github.com/nglmq/url-shortener/internal/app/storage"
+	"github.com/nglmq/url-shortener/internal/app/storage/db"
 	"io"
 	"net/http"
 	"strconv"
@@ -13,6 +14,7 @@ import (
 type URLShortener struct {
 	Store       storage.URLStore
 	FileStorage *storage.FileStorage
+	DBStorage   *db.PostgresStorage
 }
 
 func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) {
