@@ -15,14 +15,8 @@ func Start() (http.Handler, error) {
 	config.ParseFlags()
 
 	store := storage.NewMemoryURLStore()
-	//dbStorage, err := db.InitDBConnection()
-	//if err != nil {
-	//	return nil, err
-	//}
-
 	shortener := &handlers.URLShortener{
 		Store: store,
-		//DBStorage: dbStorage,
 	}
 
 	if config.DBConnection != "" {
@@ -33,7 +27,7 @@ func Start() (http.Handler, error) {
 		shortener.DBStorage = dbStorage
 	}
 
-	if config.FlagInMemoryStorage != "" && config.DBConnection == "" {
+	if config.FlagInMemoryStorage != "" {
 		fileStore, err := storage.NewFileStorage(config.FlagInMemoryStorage)
 		if err != nil {
 			return nil, err

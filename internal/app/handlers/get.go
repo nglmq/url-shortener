@@ -36,13 +36,6 @@ func (us *URLShortener) GetURLHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	//url, err := us.Store.Get(id)
-	//if err != nil {
-	//	http.Error(w, "URL not found", http.StatusBadRequest)
-	//	return
-	//}
-	//originalURL = url
-
 	if !strings.HasPrefix(originalURL, "http://") && !strings.HasPrefix(originalURL, "https://") {
 		originalURL = "http://" + originalURL
 	}

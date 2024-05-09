@@ -55,6 +55,12 @@ func (us *URLShortener) JSONHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	if us.DBStorage != nil {
+		if err := us.DBStorage.SaveURL(alias, requestJSON.URL); err != nil {
+			http.Error(w, "Error saving URL to database", http.StatusInternalServerError)
+			return
+		}
+	}
 
 	shortenedURL := fmt.Sprintf(config.FlagBaseURL + "/" + alias)
 	contentLength := len(shortenedURL)

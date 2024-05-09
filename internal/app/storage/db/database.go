@@ -5,7 +5,6 @@ import (
 	"fmt"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/nglmq/url-shortener/config"
-	"log"
 )
 
 type PostgresStorage struct {
@@ -51,8 +50,6 @@ func (s *PostgresStorage) SaveURL(alias, url string) error {
 		return err
 	}
 
-	log.Println("URL saved to DB successfully")
-
 	return nil
 }
 
@@ -69,8 +66,6 @@ func (s *PostgresStorage) GetURL(alias string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	log.Println("URL find from DB successfully")
 
 	return resURL, nil
 }
