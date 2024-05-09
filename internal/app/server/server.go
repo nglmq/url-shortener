@@ -25,24 +25,15 @@ func Start() (http.Handler, error) {
 		//DBStorage: dbStorage,
 	}
 
-	switch config.DBConnection != "" {
-	case config.DBConnection != "":
+	if config.DBConnection != "" {
 		dbStorage, err := db.InitDBConnection()
 		if err != nil {
 			return nil, err
 		}
-
 		shortener.DBStorage = dbStorage
-	//
-	//case config.DBConnection != "" && config.FlagInMemoryStorage != "":
-	//	dbStorage, err := db.InitDBConnection()
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//
-	//	shortener.DBStorage = dbStorage
+	}
 
-	case config.DBConnection == "" && config.FlagInMemoryStorage != "":
+	if config.FlagInMemoryStorage != "" && config.DBConnection == "" {
 		fileStore, err := storage.NewFileStorage(config.FlagInMemoryStorage)
 		if err != nil {
 			return nil, err
@@ -53,23 +44,7 @@ func Start() (http.Handler, error) {
 			log.Printf("Error reading URLs from file: %v", err)
 			return nil, err
 		}
-
-	case config.DBConnection == "" && config.FlagInMemoryStorage == "":
-		return nil, nil
 	}
-
-	//if config.FlagInMemoryStorage != "" {
-	//	fileStore, err := storage.NewFileStorage(config.FlagInMemoryStorage)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	shortener.FileStorage = fileStore
-	//
-	//	if err = fileStore.ReadURLsFromFile(store.URLs); err != nil {
-	//		log.Printf("Error reading URLs from file: %v", err)
-	//		return nil, err
-	//	}
-	//}
 
 	r := chi.NewRouter()
 
