@@ -47,6 +47,12 @@ func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) 
 			return
 		}
 	}
+	if us.DBStorage != nil {
+		if err := us.DBStorage.SaveURL(alias, originalURL); err != nil {
+			http.Error(w, "Error saving URL to database", http.StatusInternalServerError)
+			return
+		}
+	}
 
 	shortenedURL := fmt.Sprintf(config.FlagBaseURL + "/" + alias)
 	contentLength := len(shortenedURL)

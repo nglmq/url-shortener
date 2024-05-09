@@ -17,11 +17,31 @@ func (us *URLShortener) GetURLHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	originalURL, err := us.Store.Get(id)
-	if err != nil {
-		http.Error(w, "URL not found", http.StatusBadRequest)
-		return
+	var originalURL string
+	var err error
+
+	if us.DBStorage != nil {
+		url, err := us.DBStorage.GetURL(id)
+		if err != nil {
+			http.Error(w, "URL not found", http.StatusBadRequest)
+			return
+		}
+
+		originalURL = url
+	} else {
+		originalURL, err = us.Store.Get(id)
+		if err != nil {
+			http.Error(w, "URL not found", http.StatusBadRequest)
+			return
+		}
 	}
+
+	//url, err := us.Store.Get(id)
+	//if err != nil {
+	//	http.Error(w, "URL not found", http.StatusBadRequest)
+	//	return
+	//}
+	//originalURL = url
 
 	if !strings.HasPrefix(originalURL, "http://") && !strings.HasPrefix(originalURL, "https://") {
 		originalURL = "http://" + originalURL
