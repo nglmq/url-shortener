@@ -54,7 +54,35 @@ func (us *URLShortener) JSONHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	alias := random.NewRandomURL()
-	err := us.Store.Add(alias, requestJSON.URL)
+
+	existAlias, err := us.DBStorage.SaveURL(alias, requestJSON.URL)
+	if err != nil {
+		http.Error(w, "Error saving URL to database", http.StatusInternalServerError)
+		return
+	}
+	if existAlias != alias {
+		shortenedURL := fmt.Sprintf(config.FlagBaseURL + "/" + existAlias)
+		contentLength := len(shortenedURL)
+
+		responseJSON = JSONResponse{
+			Result: shortenedURL,
+		}
+
+		responseData, err := json.Marshal(responseJSON)
+		if err != nil {
+			http.Error(w, "error marshalling response", http.StatusBadRequest)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusConflict)
+		w.Header().Set("Content-Length", strconv.Itoa(contentLength))
+		w.Write(responseData)
+
+		return
+	}
+
+	err = us.Store.Add(alias, requestJSON.URL)
 	if err != nil {
 		http.Error(w, "Error saving URL JSON ", http.StatusBadRequest)
 		return
@@ -65,12 +93,12 @@ func (us *URLShortener) JSONHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	if us.DBStorage != nil {
-		if err := us.DBStorage.SaveURL(alias, requestJSON.URL); err != nil {
-			http.Error(w, "Error saving URL to database", http.StatusInternalServerError)
-			return
-		}
-	}
+	//if us.DBStorage != nil {
+	//	if _, err := us.DBStorage.SaveURL(alias, requestJSON.URL); err != nil {
+	//		http.Error(w, "Error saving URL to database", http.StatusInternalServerError)
+	//		return
+	//	}
+	//}
 
 	shortenedURL := fmt.Sprintf(config.FlagBaseURL + "/" + alias)
 	contentLength := len(shortenedURL)
@@ -142,7 +170,7 @@ func (us *URLShortener) JSONBatchHandler(w http.ResponseWriter, r *http.Request)
 		//	}
 		//}
 		if us.DBStorage != nil {
-			if err := us.DBStorage.SaveURL(alias, req.OriginalURL); err != nil {
+			if _, err := us.DBStorage.SaveURL(alias, req.OriginalURL); err != nil {
 				http.Error(w, "Error saving URL to database", http.StatusInternalServerError)
 				return
 			}

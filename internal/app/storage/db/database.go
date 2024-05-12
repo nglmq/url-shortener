@@ -2,8 +2,9 @@ package db
 
 import (
 	"database/sql"
-	"fmt"
+	"github.com/jackc/pgerrcode"
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/lib/pq"
 	"github.com/nglmq/url-shortener/config"
 )
 
@@ -21,7 +22,7 @@ func InitDBConnection() (*PostgresStorage, error) {
 		CREATE TABLE IF NOT EXISTS urls(
  		id SERIAL PRIMARY KEY,
 		alias TEXT NOT NULL,
-		url TEXT NOT NULL,
+		url TEXT NOT NULL UNIQUE,
 		created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);
 	`)
 	if err != nil {
@@ -37,21 +38,22 @@ func InitDBConnection() (*PostgresStorage, error) {
 	return &PostgresStorage{db: db}, nil
 }
 
-func (s *PostgresStorage) SaveURL(alias, url string) error {
-	stmt, err := s.db.Prepare("INSERT INTO urls(alias, url) VALUES ($1, $2)")
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-	defer stmt.Close()
+func (s *PostgresStorage) SaveURL(alias, url string) (string, error) {
+	var existingAlias string
 
-	_, err = stmt.Exec(alias, url)
-	if err != nil {
-		fmt.Printf("Failed to execute statement: %s\n", err)
-		return err
+	err := s.db.QueryRow(`
+        INSERT INTO urls(alias, url) VALUES ($1, $2)
+        ON CONFLICT (url) DO UPDATE SET url = EXCLUDED.url
+        RETURNING alias
+    `, alias, url).Scan(&existingAlias)
+
+	if err, ok := err.(*pq.Error); ok && err.Code == pgerrcode.UniqueViolation {
+		existingAlias, _ = s.GetURL(alias)
+
+		return existingAlias, nil
 	}
 
-	return nil
+	return existingAlias, nil
 }
 
 //func (s *PostgresStorage) SaveBatch(urls map[string]string) error {
