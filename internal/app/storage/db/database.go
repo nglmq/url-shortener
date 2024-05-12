@@ -19,9 +19,10 @@ func InitDBConnection() (*PostgresStorage, error) {
 
 	stmt, err := db.Prepare(`
 		CREATE TABLE IF NOT EXISTS urls(
--- 		id INTEGER PRIMARY KEY,
+ 		id SERIAL PRIMARY KEY,
 		alias TEXT NOT NULL,
-		url TEXT NOT NULL);
+		url TEXT NOT NULL,
+		created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);
 	`)
 	if err != nil {
 		return nil, err
@@ -46,12 +47,35 @@ func (s *PostgresStorage) SaveURL(alias, url string) error {
 
 	_, err = stmt.Exec(alias, url)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("Failed to execute statement: %s\n", err)
 		return err
 	}
 
 	return nil
 }
+
+//func (s *PostgresStorage) SaveBatch(urls map[string]string) error {
+//	tx, err := s.db.Begin()
+//	if err != nil {
+//		return err
+//	}
+//	defer tx.Rollback()
+//
+//	stmt, err := tx.Prepare("INSERT INTO urls(alias, url) VALUES ($1, $2)")
+//	if err != nil {
+//		return err
+//	}
+//	defer stmt.Close()
+//
+//	for alias, url := range urls {
+//		_, err = stmt.Exec(alias, url)
+//		if err != nil {
+//			return err
+//		}
+//	}
+//
+//	return tx.Commit()
+//}
 
 func (s *PostgresStorage) GetURL(alias string) (string, error) {
 	stmt, err := s.db.Prepare("SELECT url FROM urls WHERE alias = $1")

@@ -49,6 +49,9 @@ func Start() (http.Handler, error) {
 		r.Route("/api/shorten", func(r chi.Router) {
 			r.Post("/", shortener.JSONHandler)
 		})
+		r.Route("/api/shorten/batch", func(r chi.Router) {
+			r.Post("/", shortener.JSONBatchHandler)
+		})
 		r.Get("/{id}", shortener.GetURLHandler)
 		r.Get("/ping", shortener.PingDB)
 	})
