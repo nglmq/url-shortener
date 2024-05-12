@@ -37,21 +37,23 @@ func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) 
 
 	alias := random.NewRandomURL()
 
-	existAlias, err := us.DBStorage.SaveURL(alias, originalURL)
-	if err != nil {
-		http.Error(w, "Error saving URL to database", http.StatusInternalServerError)
-		return
-	}
-	if existAlias != alias {
-		shortenedURL := fmt.Sprintf(config.FlagBaseURL + "/" + existAlias)
-		contentLength := len(shortenedURL)
+	if us.DBStorage != nil {
+		existAlias, err := us.DBStorage.SaveURL(alias, originalURL)
+		if err != nil {
+			http.Error(w, "Error saving URL to database", http.StatusInternalServerError)
+			return
+		}
+		if existAlias != alias {
+			shortenedURL := fmt.Sprintf(config.FlagBaseURL + "/" + existAlias)
+			contentLength := len(shortenedURL)
 
-		w.Header().Set("Content-Type", "text/plain")
-		w.Header().Set("Content-Length", strconv.Itoa(contentLength))
-		w.WriteHeader(http.StatusConflict)
-		w.Write([]byte(shortenedURL))
+			w.Header().Set("Content-Type", "text/plain")
+			w.Header().Set("Content-Length", strconv.Itoa(contentLength))
+			w.WriteHeader(http.StatusConflict)
+			w.Write([]byte(shortenedURL))
 
-		return
+			return
+		}
 	}
 
 	err = us.Store.Add(alias, originalURL)

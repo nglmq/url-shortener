@@ -55,38 +55,40 @@ func (us *URLShortener) JSONHandler(w http.ResponseWriter, r *http.Request) {
 
 	alias := random.NewRandomURL()
 
-	existAlias, err := us.DBStorage.SaveURL(alias, requestJSON.URL)
-	if err != nil {
-		http.Error(w, "Error saving URL to database", http.StatusInternalServerError)
-		return
-	}
-	if existAlias != alias {
-		shortenedURL := fmt.Sprintf(config.FlagBaseURL + "/" + existAlias)
-		contentLength := len(shortenedURL)
-
-		responseJSON = JSONResponse{
-			Result: shortenedURL,
-		}
-
-		responseData, err := json.Marshal(responseJSON)
+	if us.DBStorage != nil {
+		existAlias, err := us.DBStorage.SaveURL(alias, requestJSON.URL)
 		if err != nil {
-			http.Error(w, "error marshalling response", http.StatusBadRequest)
+			http.Error(w, "Error saving URL to database", http.StatusInternalServerError)
 			return
 		}
+		if existAlias != alias {
+			shortenedURL := fmt.Sprintf(config.FlagBaseURL + "/" + existAlias)
+			contentLength := len(shortenedURL)
 
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusConflict)
-		w.Header().Set("Content-Length", strconv.Itoa(contentLength))
-		w.Write(responseData)
+			responseJSON = JSONResponse{
+				Result: shortenedURL,
+			}
 
-		return
+			responseData, err := json.Marshal(responseJSON)
+			if err != nil {
+				http.Error(w, "error marshalling response", http.StatusBadRequest)
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusConflict)
+			w.Header().Set("Content-Length", strconv.Itoa(contentLength))
+			w.Write(responseData)
+
+			return
+		}
 	}
-
-	err = us.Store.Add(alias, requestJSON.URL)
+	err := us.Store.Add(alias, requestJSON.URL)
 	if err != nil {
 		http.Error(w, "Error saving URL JSON ", http.StatusBadRequest)
 		return
 	}
+
 	if us.FileStorage != nil {
 		if err := us.FileStorage.WriteURLsToFile(alias, requestJSON.URL); err != nil {
 			http.Error(w, "Error writing URL to file", http.StatusInternalServerError)
