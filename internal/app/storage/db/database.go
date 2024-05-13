@@ -6,6 +6,7 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/lib/pq"
 	"github.com/nglmq/url-shortener/config"
+	"golang.org/x/net/context"
 )
 
 type PostgresStorage struct {
@@ -38,17 +39,18 @@ func InitDBConnection() (*PostgresStorage, error) {
 	return &PostgresStorage{db: db}, nil
 }
 
-func (s *PostgresStorage) SaveURL(alias, url string) (string, error) {
+func (s *PostgresStorage) SaveURL(ctx context.Context, alias, url string) (string, error) {
 	var existingAlias string
 
-	err := s.db.QueryRow(`
+	err := s.db.QueryRowContext(
+		ctx, `
         INSERT INTO urls(alias, url) VALUES ($1, $2)
         ON CONFLICT (url) DO UPDATE SET url = EXCLUDED.url
         RETURNING alias
     `, alias, url).Scan(&existingAlias)
 
 	if err, ok := err.(*pq.Error); ok && err.Code == pgerrcode.UniqueViolation {
-		existingAlias, _ = s.GetURL(alias)
+		existingAlias, _ = s.GetURL(ctx, alias)
 
 		return existingAlias, nil
 	}
@@ -79,16 +81,12 @@ func (s *PostgresStorage) SaveURL(alias, url string) (string, error) {
 //	return tx.Commit()
 //}
 
-func (s *PostgresStorage) GetURL(alias string) (string, error) {
-	stmt, err := s.db.Prepare("SELECT url FROM urls WHERE alias = $1")
-	if err != nil {
-		return "", err
-	}
-	defer stmt.Close()
+func (s *PostgresStorage) GetURL(ctx context.Context, alias string) (string, error) {
+	row := s.db.QueryRowContext(ctx, "SELECT url FROM urls WHERE alias = $1", alias)
 
 	var resURL string
 
-	err = stmt.QueryRow(alias).Scan(&resURL)
+	err := row.Scan(&resURL)
 	if err != nil {
 		return "", err
 	}

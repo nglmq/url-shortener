@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"fmt"
 	"github.com/nglmq/url-shortener/config"
 	"github.com/nglmq/url-shortener/internal/app/random"
@@ -38,7 +39,7 @@ func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) 
 	alias := random.NewRandomURL()
 
 	if us.DBStorage != nil {
-		existAlias, err := us.DBStorage.SaveURL(alias, originalURL)
+		existAlias, err := us.DBStorage.SaveURL(context.Background(), alias, originalURL)
 		if err != nil {
 			http.Error(w, "Error saving URL to database", http.StatusInternalServerError)
 			return

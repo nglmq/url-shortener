@@ -6,6 +6,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/nglmq/url-shortener/config"
 	"github.com/nglmq/url-shortener/internal/app/random"
+	"golang.org/x/net/context"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -56,7 +57,7 @@ func (us *URLShortener) JSONHandler(w http.ResponseWriter, r *http.Request) {
 	alias := random.NewRandomURL()
 
 	if us.DBStorage != nil {
-		existAlias, err := us.DBStorage.SaveURL(alias, requestJSON.URL)
+		existAlias, err := us.DBStorage.SaveURL(context.Background(), alias, requestJSON.URL)
 		if err != nil {
 			http.Error(w, "Error saving URL to database", http.StatusInternalServerError)
 			return
@@ -172,7 +173,7 @@ func (us *URLShortener) JSONBatchHandler(w http.ResponseWriter, r *http.Request)
 		//	}
 		//}
 		if us.DBStorage != nil {
-			if _, err := us.DBStorage.SaveURL(alias, req.OriginalURL); err != nil {
+			if _, err := us.DBStorage.SaveURL(context.Background(), alias, req.OriginalURL); err != nil {
 				http.Error(w, "Error saving URL to database", http.StatusInternalServerError)
 				return
 			}

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"net/http"
 	"strings"
 )
@@ -21,7 +22,7 @@ func (us *URLShortener) GetURLHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	if us.DBStorage != nil {
-		url, err := us.DBStorage.GetURL(id)
+		url, err := us.DBStorage.GetURL(context.Background(), id)
 		if err != nil {
 			http.Error(w, "URL not found", http.StatusBadRequest)
 			return
