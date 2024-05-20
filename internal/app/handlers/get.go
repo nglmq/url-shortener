@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"github.com/nglmq/url-shortener/config"
 	"github.com/nglmq/url-shortener/internal/app/auth"
 	"net/http"
 	"strings"
@@ -97,7 +98,7 @@ func (us *URLShortener) GetAllURLsHandler(w http.ResponseWriter, r *http.Request
 	jsonURLs := make([]JSONAllUserURLs, 0, len(urls))
 	for alias, originalURL := range urls {
 		jsonURLs = append(jsonURLs, JSONAllUserURLs{
-			ShortURL:    alias,
+			ShortURL:    config.FlagBaseURL + "/" + alias,
 			OriginalURL: originalURL,
 		})
 	}
