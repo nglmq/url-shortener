@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/jackc/pgerrcode"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/lib/pq"
@@ -22,6 +23,7 @@ func InitDBConnection() (*PostgresStorage, error) {
 	stmt, err := db.Prepare(`
 		CREATE TABLE IF NOT EXISTS urls(
  		id SERIAL PRIMARY KEY,
+ 		userId TEXT NOT NULL,
 		alias TEXT NOT NULL,
 		url TEXT NOT NULL UNIQUE,
 		created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);
@@ -39,15 +41,15 @@ func InitDBConnection() (*PostgresStorage, error) {
 	return &PostgresStorage{db: db}, nil
 }
 
-func (s *PostgresStorage) SaveURL(ctx context.Context, alias, url string) (string, error) {
+func (s *PostgresStorage) SaveURL(ctx context.Context, userId, alias, url string) (string, error) {
 	var existingAlias string
 
 	err := s.db.QueryRowContext(
 		ctx, `
-        INSERT INTO urls(alias, url) VALUES ($1, $2)
+        INSERT INTO urls(userId, alias, url) VALUES ($1, $2, $3)
         ON CONFLICT (url) DO UPDATE SET url = EXCLUDED.url
         RETURNING alias
-    `, alias, url).Scan(&existingAlias)
+    `, userId, alias, url).Scan(&existingAlias)
 
 	if err, ok := err.(*pq.Error); ok && err.Code == pgerrcode.UniqueViolation {
 		existingAlias, _ = s.GetURL(ctx, alias)
@@ -92,6 +94,29 @@ func (s *PostgresStorage) GetURL(ctx context.Context, alias string) (string, err
 	}
 
 	return resURL, nil
+}
+
+func (s *PostgresStorage) GetAllUserURLs(ctx context.Context, userId string) (map[string]string, error) {
+	userURLs := make(map[string]string)
+	fmt.Println(userId)
+
+	rows, err := s.db.QueryContext(ctx, "SELECT alias, url FROM urls WHERE userId = $1", userId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var alias, url string
+		err = rows.Scan(&alias, &url)
+		if err != nil {
+			return nil, err
+		}
+
+		userURLs[alias] = url
+	}
+
+	return userURLs, nil
 }
 
 func (s *PostgresStorage) Ping() error {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/nglmq/url-shortener/config"
+	"github.com/nglmq/url-shortener/internal/app/auth"
 	"github.com/nglmq/url-shortener/internal/app/random"
 	"github.com/nglmq/url-shortener/internal/app/storage"
 	"github.com/nglmq/url-shortener/internal/app/storage/db"
@@ -24,6 +25,24 @@ func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	token, err := r.Cookie("userId")
+	if err != nil || token == nil {
+		userToken, err := auth.BuildJWTString()
+		if err != nil {
+			http.Error(w, "Error generating JWT token", http.StatusInternalServerError)
+			return
+		}
+
+		http.SetCookie(w, &http.Cookie{
+			Name:     "userId",
+			Value:    userToken,
+			Path:     "/",
+			HttpOnly: true,
+		})
+
+		token = &http.Cookie{Value: userToken}
+	}
+
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Error reading request body", http.StatusBadRequest)
@@ -39,13 +58,16 @@ func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) 
 	alias := random.NewRandomURL()
 
 	if us.DBStorage != nil {
-		existAlias, err := us.DBStorage.SaveURL(context.Background(), alias, originalURL)
+		userId := auth.GetUserID(token.Value)
+
+		existAlias, err := us.DBStorage.SaveURL(context.Background(), userId, alias, originalURL)
 		if err != nil {
 			http.Error(w, "Error saving URL to database", http.StatusInternalServerError)
 			return
 		}
 		if existAlias != alias {
 			shortenedURL := fmt.Sprintf(config.FlagBaseURL + "/" + existAlias)
+			fmt.Println(shortenedURL)
 			contentLength := len(shortenedURL)
 
 			w.Header().Set("Content-Type", "text/plain")

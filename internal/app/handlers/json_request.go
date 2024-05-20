@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-playground/validator/v10"
 	"github.com/nglmq/url-shortener/config"
+	"github.com/nglmq/url-shortener/internal/app/auth"
 	"github.com/nglmq/url-shortener/internal/app/random"
 	"golang.org/x/net/context"
 	"log/slog"
@@ -41,6 +42,24 @@ func (us *URLShortener) JSONHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	token, err := r.Cookie("userId")
+	if err != nil || token == nil {
+		userToken, err := auth.BuildJWTString()
+		if err != nil {
+			http.Error(w, "Error generating JWT token", http.StatusInternalServerError)
+			return
+		}
+
+		http.SetCookie(w, &http.Cookie{
+			Name:     "userId",
+			Value:    userToken,
+			Path:     "/",
+			HttpOnly: true,
+		})
+
+		token = &http.Cookie{Value: userToken}
+	}
+
 	if err := json.NewDecoder(r.Body).Decode(&requestJSON); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -57,7 +76,9 @@ func (us *URLShortener) JSONHandler(w http.ResponseWriter, r *http.Request) {
 	alias := random.NewRandomURL()
 
 	if us.DBStorage != nil {
-		existAlias, err := us.DBStorage.SaveURL(context.Background(), alias, requestJSON.URL)
+		userId := auth.GetUserID(token.Value)
+
+		existAlias, err := us.DBStorage.SaveURL(context.Background(), userId, alias, requestJSON.URL)
 		if err != nil {
 			http.Error(w, "Error saving URL to database", http.StatusInternalServerError)
 			return
@@ -84,7 +105,7 @@ func (us *URLShortener) JSONHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	err := us.Store.Add(alias, requestJSON.URL)
+	err = us.Store.Add(alias, requestJSON.URL)
 	if err != nil {
 		http.Error(w, "Error saving URL JSON ", http.StatusBadRequest)
 		return
@@ -126,6 +147,24 @@ func (us *URLShortener) JSONBatchHandler(w http.ResponseWriter, r *http.Request)
 	if r.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusBadRequest)
 		return
+	}
+
+	token, err := r.Cookie("userId")
+	if err != nil || token == nil {
+		userToken, err := auth.BuildJWTString()
+		if err != nil {
+			http.Error(w, "Error generating JWT token", http.StatusInternalServerError)
+			return
+		}
+
+		http.SetCookie(w, &http.Cookie{
+			Name:     "userId",
+			Value:    userToken,
+			Path:     "/",
+			HttpOnly: true,
+		})
+
+		token = &http.Cookie{Value: userToken}
 	}
 
 	var requestJSON []JSONBatchRequest
@@ -173,7 +212,9 @@ func (us *URLShortener) JSONBatchHandler(w http.ResponseWriter, r *http.Request)
 		//	}
 		//}
 		if us.DBStorage != nil {
-			if _, err := us.DBStorage.SaveURL(context.Background(), alias, req.OriginalURL); err != nil {
+			userId := auth.GetUserID(token.Value)
+
+			if _, err := us.DBStorage.SaveURL(context.Background(), userId, alias, req.OriginalURL); err != nil {
 				http.Error(w, "Error saving URL to database", http.StatusInternalServerError)
 				return
 			}
