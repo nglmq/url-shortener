@@ -20,13 +20,7 @@ func (us *URLShortener) GetURLHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var (
-		originalURL string
-		token       *http.Cookie
-		err         error
-	)
-
-	token, err = r.Cookie("userId")
+	token, err := r.Cookie("userId")
 	if err != nil || token == nil {
 		userToken, err := auth.BuildJWTString()
 		if err != nil {
@@ -59,20 +53,24 @@ func (us *URLShortener) GetURLHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		originalURL = url
+		if !strings.HasPrefix(url, "http://") && !strings.HasPrefix(url, "https://") {
+			url = "http://" + url
+		}
+		w.Header().Set("Location", url)
+		w.WriteHeader(http.StatusTemporaryRedirect)
 	} else {
-		originalURL, err = us.Store.Get(id)
+		url, err := us.Store.Get(id)
 		if err != nil {
 			http.Error(w, "URL not found", http.StatusBadRequest)
 			return
 		}
-	}
 
-	if !strings.HasPrefix(originalURL, "http://") && !strings.HasPrefix(originalURL, "https://") {
-		originalURL = "http://" + originalURL
+		if !strings.HasPrefix(url, "http://") && !strings.HasPrefix(url, "https://") {
+			url = "http://" + url
+		}
+		w.Header().Set("Location", url)
+		w.WriteHeader(http.StatusTemporaryRedirect)
 	}
-	w.Header().Set("Location", originalURL)
-	w.WriteHeader(http.StatusTemporaryRedirect)
 }
 
 func (us *URLShortener) GetAllURLsHandler(w http.ResponseWriter, r *http.Request) {

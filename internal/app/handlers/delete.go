@@ -15,7 +15,7 @@ func (us *URLShortener) DeleteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := r.Cookie("userID")
+	token, err := r.Cookie("userId")
 	if err != nil || token == nil {
 		userToken, err := auth.BuildJWTString()
 		if err != nil {
@@ -24,7 +24,7 @@ func (us *URLShortener) DeleteHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		http.SetCookie(w, &http.Cookie{
-			Name:     "userID",
+			Name:     "userId",
 			Value:    userToken,
 			Path:     "/",
 			HttpOnly: true,

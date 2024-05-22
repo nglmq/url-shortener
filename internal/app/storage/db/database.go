@@ -116,7 +116,7 @@ func (s *PostgresStorage) GetAllUserURLs(ctx context.Context, userID string) (ma
 		userURLs[alias] = url
 	}
 
-	if err = rows.Err(); err != nil {
+	if err := rows.Err(); err != nil {
 		return nil, err
 	}
 
