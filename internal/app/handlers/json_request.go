@@ -56,8 +56,6 @@ func (us *URLShortener) JSONHandler(w http.ResponseWriter, r *http.Request) {
 			Path:     "/",
 			HttpOnly: true,
 		})
-
-		token = &http.Cookie{Value: userToken}
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&requestJSON); err != nil {
@@ -163,8 +161,6 @@ func (us *URLShortener) JSONBatchHandler(w http.ResponseWriter, r *http.Request)
 			Path:     "/",
 			HttpOnly: true,
 		})
-
-		token = &http.Cookie{Value: userToken}
 	}
 
 	var requestJSON []JSONBatchRequest

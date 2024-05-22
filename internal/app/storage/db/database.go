@@ -7,6 +7,7 @@ import (
 	"github.com/lib/pq"
 	"github.com/nglmq/url-shortener/config"
 	"golang.org/x/net/context"
+	"log"
 )
 
 type PostgresStorage struct {
@@ -97,10 +98,10 @@ func (s *PostgresStorage) GetURL(ctx context.Context, alias string) (string, boo
 	return resURL, deleted, nil
 }
 
-func (s *PostgresStorage) GetAllUserURLs(ctx context.Context, userId string) (map[string]string, error) {
+func (s *PostgresStorage) GetAllUserURLs(ctx context.Context, userID string) (map[string]string, error) {
 	userURLs := make(map[string]string)
 
-	rows, err := s.db.QueryContext(ctx, "SELECT alias, url FROM urls WHERE userId = $1", userId)
+	rows, err := s.db.QueryContext(ctx, "SELECT alias, url FROM urls WHERE userId = $1", userID)
 	if err != nil {
 		return nil, err
 	}
@@ -116,11 +117,16 @@ func (s *PostgresStorage) GetAllUserURLs(ctx context.Context, userId string) (ma
 		userURLs[alias] = url
 	}
 
+	rerr := rows.Close()
+	if rerr != nil {
+		log.Fatal(rerr)
+	}
+
 	return userURLs, nil
 }
 
-func (s *PostgresStorage) DeleteURL(ctx context.Context, alias, userId string) error {
-	_, err := s.db.QueryContext(ctx, "UPDATE urls SET deleted = true WHERE alias = $1 AND userId = $2", alias, userId)
+func (s *PostgresStorage) DeleteURL(ctx context.Context, alias, userID string) error {
+	_, err := s.db.QueryContext(ctx, "UPDATE urls SET deleted = true WHERE alias = $1 AND userId = $2", alias, userID)
 	if err != nil {
 		return err
 	}
