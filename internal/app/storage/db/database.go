@@ -124,13 +124,8 @@ func (s *PostgresStorage) GetAllUserURLs(ctx context.Context, userID string) (ma
 }
 
 func (s *PostgresStorage) DeleteURL(ctx context.Context, alias, userID string) error {
-	rows, err := s.db.QueryContext(ctx, "UPDATE urls SET deleted = true WHERE alias = $1 AND userId = $2", alias, userID)
+	_, err := s.db.ExecContext(ctx, "UPDATE urls SET deleted = true WHERE alias = $1 AND userId = $2", alias, userID)
 	if err != nil {
-		return err
-	}
-	defer rows.Close()
-
-	if err := rows.Close(); err != nil {
 		return err
 	}
 
