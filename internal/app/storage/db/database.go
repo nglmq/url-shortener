@@ -7,7 +7,6 @@ import (
 	"github.com/lib/pq"
 	"github.com/nglmq/url-shortener/config"
 	"golang.org/x/net/context"
-	"log"
 )
 
 type PostgresStorage struct {
@@ -117,9 +116,8 @@ func (s *PostgresStorage) GetAllUserURLs(ctx context.Context, userID string) (ma
 		userURLs[alias] = url
 	}
 
-	rerr := rows.Close()
-	if rerr != nil {
-		log.Fatal(rerr)
+	if err = rows.Err(); err != nil {
+		return nil, err
 	}
 
 	return userURLs, nil
