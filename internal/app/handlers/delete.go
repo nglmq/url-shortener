@@ -15,7 +15,7 @@ func (us *URLShortener) DeleteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := r.Cookie("userId")
+	token, err := r.Cookie("userID")
 	if err != nil || token == nil {
 		userToken, err := auth.BuildJWTString()
 		if err != nil {
@@ -24,7 +24,7 @@ func (us *URLShortener) DeleteHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		http.SetCookie(w, &http.Cookie{
-			Name:     "userId",
+			Name:     "userID",
 			Value:    userToken,
 			Path:     "/",
 			HttpOnly: true,
@@ -45,17 +45,17 @@ func (us *URLShortener) DeleteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userId := auth.GetUserID(token.Value)
+	userID := auth.GetUserID(token.Value)
 
 	for _, alias := range aliases {
-		go func(alias, userId string) {
-			err := us.DBStorage.DeleteURL(context.Background(), alias, userId)
+		go func(alias, userID string) {
+			err := us.DBStorage.DeleteURL(context.Background(), alias, userID)
 			if err != nil {
 				fmt.Println(err)
 				return
 			}
 			fmt.Println(alias + " deleted")
-		}(alias, userId)
+		}(alias, userID)
 	}
 
 	w.WriteHeader(http.StatusAccepted)

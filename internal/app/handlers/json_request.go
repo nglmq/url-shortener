@@ -76,9 +76,9 @@ func (us *URLShortener) JSONHandler(w http.ResponseWriter, r *http.Request) {
 	alias := random.NewRandomURL()
 
 	if us.DBStorage != nil {
-		userId := auth.GetUserID(token.Value)
+		userID := auth.GetUserID(token.Value)
 
-		existAlias, err := us.DBStorage.SaveURL(context.Background(), userId, alias, requestJSON.URL)
+		existAlias, err := us.DBStorage.SaveURL(context.Background(), userID, alias, requestJSON.URL)
 		if err != nil {
 			http.Error(w, "Error saving URL to database", http.StatusInternalServerError)
 			return
@@ -212,9 +212,9 @@ func (us *URLShortener) JSONBatchHandler(w http.ResponseWriter, r *http.Request)
 		//	}
 		//}
 		if us.DBStorage != nil {
-			userId := auth.GetUserID(token.Value)
+			userID := auth.GetUserID(token.Value)
 
-			if _, err := us.DBStorage.SaveURL(context.Background(), userId, alias, req.OriginalURL); err != nil {
+			if _, err := us.DBStorage.SaveURL(context.Background(), userID, alias, req.OriginalURL); err != nil {
 				http.Error(w, "Error saving URL to database", http.StatusInternalServerError)
 				return
 			}

@@ -41,7 +41,7 @@ func InitDBConnection() (*PostgresStorage, error) {
 	return &PostgresStorage{db: db}, nil
 }
 
-func (s *PostgresStorage) SaveURL(ctx context.Context, userId, alias, url string) (string, error) {
+func (s *PostgresStorage) SaveURL(ctx context.Context, userID, alias, url string) (string, error) {
 	var existingAlias string
 
 	err := s.db.QueryRowContext(
@@ -49,7 +49,7 @@ func (s *PostgresStorage) SaveURL(ctx context.Context, userId, alias, url string
         INSERT INTO urls(userId, alias, url) VALUES ($1, $2, $3)
         ON CONFLICT (url) DO UPDATE SET url = EXCLUDED.url
         RETURNING alias
-    `, userId, alias, url).Scan(&existingAlias)
+    `, userID, alias, url).Scan(&existingAlias)
 
 	if err, ok := err.(*pq.Error); ok && err.Code == pgerrcode.UniqueViolation {
 		existingAlias, _, _ = s.GetURL(ctx, alias)
@@ -104,7 +104,12 @@ func (s *PostgresStorage) GetAllUserURLs(ctx context.Context, userId string) (ma
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+
+		}
+	}(rows)
 
 	for rows.Next() {
 		var alias, url string

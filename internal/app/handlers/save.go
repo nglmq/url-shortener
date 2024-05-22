@@ -58,9 +58,9 @@ func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) 
 	alias := random.NewRandomURL()
 
 	if us.DBStorage != nil {
-		userId := auth.GetUserID(token.Value)
+		userID := auth.GetUserID(token.Value)
 
-		existAlias, err := us.DBStorage.SaveURL(context.Background(), userId, alias, originalURL)
+		existAlias, err := us.DBStorage.SaveURL(context.Background(), userID, alias, originalURL)
 		if err != nil {
 			http.Error(w, "Error saving URL to database", http.StatusInternalServerError)
 			return
