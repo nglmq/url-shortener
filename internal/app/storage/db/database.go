@@ -104,12 +104,7 @@ func (s *PostgresStorage) GetAllUserURLs(ctx context.Context, userId string) (ma
 	if err != nil {
 		return nil, err
 	}
-	defer func(rows *sql.Rows) {
-		err := rows.Close()
-		if err != nil {
-
-		}
-	}(rows)
+	defer rows.Close()
 
 	for rows.Next() {
 		var alias, url string
