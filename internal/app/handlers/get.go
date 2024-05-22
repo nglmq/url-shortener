@@ -51,9 +51,13 @@ func (us *URLShortener) GetURLHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if us.DBStorage != nil {
-		url, err := us.DBStorage.GetURL(context.Background(), id)
+		url, deleted, err := us.DBStorage.GetURL(context.Background(), id)
 		if err != nil {
 			http.Error(w, "URL not found", http.StatusBadRequest)
+			return
+		}
+		if deleted {
+			w.WriteHeader(http.StatusGone)
 			return
 		}
 

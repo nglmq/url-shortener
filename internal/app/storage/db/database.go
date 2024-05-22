@@ -2,7 +2,6 @@ package db
 
 import (
 	"database/sql"
-	"fmt"
 	"github.com/jackc/pgerrcode"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/lib/pq"
@@ -26,6 +25,7 @@ func InitDBConnection() (*PostgresStorage, error) {
  		userId TEXT NOT NULL,
 		alias TEXT NOT NULL,
 		url TEXT NOT NULL UNIQUE,
+		deleted BOOLEAN NOT NULL DEFAULT false,
 		created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);
 	`)
 	if err != nil {
@@ -52,7 +52,7 @@ func (s *PostgresStorage) SaveURL(ctx context.Context, userId, alias, url string
     `, userId, alias, url).Scan(&existingAlias)
 
 	if err, ok := err.(*pq.Error); ok && err.Code == pgerrcode.UniqueViolation {
-		existingAlias, _ = s.GetURL(ctx, alias)
+		existingAlias, _, _ = s.GetURL(ctx, alias)
 
 		return existingAlias, nil
 	}
@@ -83,22 +83,22 @@ func (s *PostgresStorage) SaveURL(ctx context.Context, userId, alias, url string
 //	return tx.Commit()
 //}
 
-func (s *PostgresStorage) GetURL(ctx context.Context, alias string) (string, error) {
-	row := s.db.QueryRowContext(ctx, "SELECT url FROM urls WHERE alias = $1", alias)
+func (s *PostgresStorage) GetURL(ctx context.Context, alias string) (string, bool, error) {
+	row := s.db.QueryRowContext(ctx, "SELECT url, deleted FROM urls WHERE alias = $1", alias)
 
 	var resURL string
+	var deleted bool
 
-	err := row.Scan(&resURL)
+	err := row.Scan(&resURL, &deleted)
 	if err != nil {
-		return "", err
+		return "", false, err
 	}
 
-	return resURL, nil
+	return resURL, deleted, nil
 }
 
 func (s *PostgresStorage) GetAllUserURLs(ctx context.Context, userId string) (map[string]string, error) {
 	userURLs := make(map[string]string)
-	fmt.Println(userId)
 
 	rows, err := s.db.QueryContext(ctx, "SELECT alias, url FROM urls WHERE userId = $1", userId)
 	if err != nil {
@@ -117,6 +117,15 @@ func (s *PostgresStorage) GetAllUserURLs(ctx context.Context, userId string) (ma
 	}
 
 	return userURLs, nil
+}
+
+func (s *PostgresStorage) DeleteURL(ctx context.Context, alias, userId string) error {
+	_, err := s.db.QueryContext(ctx, "UPDATE urls SET deleted = true WHERE alias = $1 AND userId = $2", alias, userId)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *PostgresStorage) Ping() error {
