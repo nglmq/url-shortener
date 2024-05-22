@@ -29,6 +29,8 @@ func (us *URLShortener) DeleteHandler(w http.ResponseWriter, r *http.Request) {
 			Path:     "/",
 			HttpOnly: true,
 		})
+
+		token = &http.Cookie{Value: userToken}
 	}
 
 	body, err := io.ReadAll(r.Body)
@@ -47,6 +49,10 @@ func (us *URLShortener) DeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 	for _, alias := range aliases {
 		go func(alias, userID string) {
+			if url, _, _ := us.DBStorage.GetURL(context.Background(), alias); url == "" {
+				return
+			}
+
 			err := us.DBStorage.DeleteURL(context.Background(), alias, userID)
 			if err != nil {
 				fmt.Println(err)

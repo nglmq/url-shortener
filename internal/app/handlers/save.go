@@ -39,6 +39,8 @@ func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) 
 			Path:     "/",
 			HttpOnly: true,
 		})
+
+		token = &http.Cookie{Value: userToken}
 	}
 
 	body, err := io.ReadAll(r.Body)
