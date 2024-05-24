@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/nglmq/url-shortener/internal/app/auth"
+	"golang.org/x/net/context"
 	"io"
 	"net/http"
 )
@@ -48,16 +49,15 @@ func (us *URLShortener) DeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 	for _, alias := range aliases {
 		go func(alias, userID string) {
-			if url, _, _ := us.DBStorage.GetURL(r.Context(), alias); url == "" {
+			if url, _, _ := us.DBStorage.GetURL(context.Background(), alias); url == "" {
 				return
 			}
 
-			err := us.DBStorage.DeleteURL(r.Context(), alias, userID)
+			err := us.DBStorage.DeleteURL(context.Background(), alias, userID)
 			if err != nil {
 				fmt.Println(err)
 				return
 			}
-			fmt.Println(alias + " deleted")
 		}(alias, userID)
 	}
 
