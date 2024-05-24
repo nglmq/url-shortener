@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"fmt"
 	"github.com/nglmq/url-shortener/config"
 	"github.com/nglmq/url-shortener/internal/app/auth"
@@ -60,14 +59,14 @@ func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) 
 	if us.DBStorage != nil {
 		userID := auth.GetUserID(token.Value)
 
-		existAlias, err := us.DBStorage.SaveURL(context.Background(), userID, alias, originalURL)
+		existAlias, err := us.DBStorage.SaveURL(r.Context(), userID, alias, originalURL)
 		if err != nil {
 			http.Error(w, "Error saving URL to database", http.StatusInternalServerError)
 			return
 		}
 		if existAlias != alias {
 			shortenedURL := fmt.Sprintf(config.FlagBaseURL + "/" + existAlias)
-			fmt.Println(shortenedURL)
+
 			contentLength := len(shortenedURL)
 
 			w.Header().Set("Content-Type", "text/plain")

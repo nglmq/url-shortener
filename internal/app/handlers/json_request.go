@@ -7,7 +7,6 @@ import (
 	"github.com/nglmq/url-shortener/config"
 	"github.com/nglmq/url-shortener/internal/app/auth"
 	"github.com/nglmq/url-shortener/internal/app/random"
-	"golang.org/x/net/context"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -78,7 +77,7 @@ func (us *URLShortener) JSONHandler(w http.ResponseWriter, r *http.Request) {
 	if us.DBStorage != nil {
 		userID := auth.GetUserID(token.Value)
 
-		existAlias, err := us.DBStorage.SaveURL(context.Background(), userID, alias, requestJSON.URL)
+		existAlias, err := us.DBStorage.SaveURL(r.Context(), userID, alias, requestJSON.URL)
 		if err != nil {
 			http.Error(w, "Error saving URL to database", http.StatusInternalServerError)
 			return
@@ -214,7 +213,7 @@ func (us *URLShortener) JSONBatchHandler(w http.ResponseWriter, r *http.Request)
 		if us.DBStorage != nil {
 			userID := auth.GetUserID(token.Value)
 
-			if _, err := us.DBStorage.SaveURL(context.Background(), userID, alias, req.OriginalURL); err != nil {
+			if _, err := us.DBStorage.SaveURL(r.Context(), userID, alias, req.OriginalURL); err != nil {
 				http.Error(w, "Error saving URL to database", http.StatusInternalServerError)
 				return
 			}

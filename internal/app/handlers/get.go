@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"encoding/json"
 	"github.com/nglmq/url-shortener/config"
 	"github.com/nglmq/url-shortener/internal/app/auth"
@@ -43,7 +42,7 @@ func (us *URLShortener) GetURLHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if us.DBStorage != nil {
-		url, deleted, err := us.DBStorage.GetURL(context.Background(), id)
+		url, deleted, err := us.DBStorage.GetURL(r.Context(), id)
 		if err != nil {
 			http.Error(w, "URL not found", http.StatusBadRequest)
 			return
@@ -85,7 +84,7 @@ func (us *URLShortener) GetAllURLsHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	urls, err := us.DBStorage.GetAllUserURLs(context.Background(), auth.GetUserID(token.Value))
+	urls, err := us.DBStorage.GetAllUserURLs(r.Context(), auth.GetUserID(token.Value))
 	if err != nil {
 		http.Error(w, "Error getting URLs", http.StatusInternalServerError)
 		return
