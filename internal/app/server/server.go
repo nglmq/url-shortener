@@ -1,15 +1,16 @@
 package server
 
 import (
+	"log"
+	"net/http"
+	"net/http/pprof"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/nglmq/url-shortener/config"
 	"github.com/nglmq/url-shortener/internal/app/handlers"
 	"github.com/nglmq/url-shortener/internal/app/middleware"
 	"github.com/nglmq/url-shortener/internal/app/storage"
 	"github.com/nglmq/url-shortener/internal/app/storage/db"
-	"log"
-	"net/http"
-	"net/http/pprof"
 )
 
 func Start() (http.Handler, error) {

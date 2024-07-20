@@ -3,10 +3,11 @@ package storage
 import (
 	"bufio"
 	"encoding/json"
-	"github.com/google/uuid"
 	"log"
 	"os"
 	"sync"
+
+	"github.com/google/uuid"
 )
 
 type FileStorage struct {

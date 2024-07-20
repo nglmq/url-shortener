@@ -2,10 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
-	"github.com/nglmq/url-shortener/config"
-	"github.com/nglmq/url-shortener/internal/app/auth"
 	"net/http"
 	"strings"
+
+	"github.com/nglmq/url-shortener/config"
+	"github.com/nglmq/url-shortener/internal/app/auth"
 )
 
 type JSONAllUserURLs struct {

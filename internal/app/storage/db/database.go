@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+
 	"github.com/jackc/pgerrcode"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/lib/pq"

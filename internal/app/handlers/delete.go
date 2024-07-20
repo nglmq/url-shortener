@@ -3,10 +3,11 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/nglmq/url-shortener/internal/app/auth"
-	"golang.org/x/net/context"
 	"io"
 	"net/http"
+
+	"github.com/nglmq/url-shortener/internal/app/auth"
+	"golang.org/x/net/context"
 )
 
 func (us *URLShortener) DeleteHandler(w http.ResponseWriter, r *http.Request) {

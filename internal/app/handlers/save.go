@@ -2,14 +2,15 @@ package handlers
 
 import (
 	"fmt"
+	"io"
+	"net/http"
+	"strconv"
+
 	"github.com/nglmq/url-shortener/config"
 	"github.com/nglmq/url-shortener/internal/app/auth"
 	"github.com/nglmq/url-shortener/internal/app/random"
 	"github.com/nglmq/url-shortener/internal/app/storage"
 	"github.com/nglmq/url-shortener/internal/app/storage/db"
-	"io"
-	"net/http"
-	"strconv"
 )
 
 type URLShortener struct {

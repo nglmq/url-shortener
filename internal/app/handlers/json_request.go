@@ -3,13 +3,14 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
+	"net/http"
+	"strconv"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/nglmq/url-shortener/config"
 	"github.com/nglmq/url-shortener/internal/app/auth"
 	"github.com/nglmq/url-shortener/internal/app/random"
-	"log/slog"
-	"net/http"
-	"strconv"
 )
 
 type JSONRequest struct {
