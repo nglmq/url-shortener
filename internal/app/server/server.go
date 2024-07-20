@@ -9,6 +9,8 @@ import (
 	"github.com/nglmq/url-shortener/internal/app/storage/db"
 	"log"
 	"net/http"
+	"net/http/pprof"
+	_ "net/http/pprof"
 )
 
 func Start() (http.Handler, error) {
@@ -27,7 +29,7 @@ func Start() (http.Handler, error) {
 		shortener.DBStorage = dbStorage
 	}
 
-	if config.FlagInMemoryStorage != "" {
+	if config.FlagInMemoryStorage != "" && config.DBConnection == "" {
 		fileStore, err := storage.NewFileStorage(config.FlagInMemoryStorage)
 		if err != nil {
 			return nil, err
@@ -57,6 +59,16 @@ func Start() (http.Handler, error) {
 		r.Get("/api/user/urls", shortener.GetAllURLsHandler)
 		r.Delete("/api/user/urls", shortener.DeleteHandler)
 	})
+
+	r.HandleFunc("/debug/pprof/", pprof.Index)
+	r.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+	r.HandleFunc("/debug/pprof/profile", pprof.Profile)
+	r.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+
+	r.Handle("/debug/pprof/goroutine", pprof.Handler("goroutine"))
+	r.Handle("/debug/pprof/heap", pprof.Handler("heap"))
+	r.Handle("/debug/pprof/threadcreate", pprof.Handler("threadcreate"))
+	r.Handle("/debug/pprof/block", pprof.Handler("block"))
 
 	return r, nil
 }

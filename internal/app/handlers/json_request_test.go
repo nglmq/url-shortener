@@ -74,3 +74,9 @@ func TestURLShortener_JSONHandler(t *testing.T) {
 		})
 	}
 }
+
+func Benchmark_JSONHandler(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+
+	}
+}

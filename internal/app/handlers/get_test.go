@@ -112,3 +112,15 @@ func TestURLShortener_GetURLHandler(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkURLShortener_GetURLHandler(b *testing.B) {
+	store := storage.NewMemoryURLStore()
+	URLShortenerTest := URLShortener{Store: store}
+
+	request := httptest.NewRequest(http.MethodGet, "/", nil)
+	w := httptest.NewRecorder()
+
+	for i := 0; i < b.N; i++ {
+		URLShortenerTest.GetURLHandler(w, request)
+	}
+}

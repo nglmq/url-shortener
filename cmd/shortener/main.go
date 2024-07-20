@@ -5,6 +5,7 @@ import (
 	"github.com/nglmq/url-shortener/internal/app/server"
 	"log"
 	"net/http"
+	_ "net/http/pprof"
 )
 
 func main() {
