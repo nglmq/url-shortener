@@ -5,6 +5,7 @@ import (
 	"os"
 )
 
+// Flags for the server config
 var (
 	FlagRunAddr         string
 	FlagBaseURL         string
@@ -12,6 +13,7 @@ var (
 	DBConnection        string
 )
 
+// ParseFlags parses the command line args and ENV variables
 func ParseFlags() {
 	flag.StringVar(&FlagRunAddr, "a", "localhost:8080", "address and port to run server")
 	flag.StringVar(&FlagBaseURL, "b", "http://localhost:8080", "base url")

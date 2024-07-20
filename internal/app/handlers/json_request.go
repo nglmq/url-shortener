@@ -13,24 +13,29 @@ import (
 	"github.com/nglmq/url-shortener/internal/app/random"
 )
 
+// JSONRequest structure for validating JSON
 type JSONRequest struct {
 	URL string `json:"url" validate:"required"`
 }
 
+// JSONBatchRequest structure for validating batch of JSON URLs
 type JSONBatchRequest struct {
 	CorrelationID string `json:"correlation_id" validate:"required"`
 	OriginalURL   string `json:"original_url" validate:"required"`
 }
 
+// JSONResponse structure for response
 type JSONResponse struct {
 	Result string `json:"result"`
 }
 
+// JSONBatchResponse structure for batch response
 type JSONBatchResponse struct {
 	CorrelationID string `json:"correlation_id" validate:"required"`
 	ShortURL      string `json:"short_url" validate:"required"`
 }
 
+// JSONHandler handles JSON requests
 func (us *URLShortener) JSONHandler(w http.ResponseWriter, r *http.Request) {
 	var (
 		requestJSON  JSONRequest
@@ -143,6 +148,7 @@ func (us *URLShortener) JSONHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(responseData)
 }
 
+// JSONBatchHandler handles batch JSON requests
 func (us *URLShortener) JSONBatchHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusBadRequest)

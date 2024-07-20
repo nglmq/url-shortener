@@ -9,11 +9,13 @@ import (
 	"github.com/nglmq/url-shortener/internal/app/auth"
 )
 
+// JSONAllUserURLs is a JSON response for all user URLs
 type JSONAllUserURLs struct {
 	ShortURL    string `json:"short_url"`
 	OriginalURL string `json:"original_url"`
 }
 
+// GetURLHandler is handler to get user URL.
 func (us *URLShortener) GetURLHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Only GET requests are allowed!", http.StatusBadRequest)
@@ -73,6 +75,7 @@ func (us *URLShortener) GetURLHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GetAllURLsHandler is handler to get all user URLs. Works only for authenticated users.
 func (us *URLShortener) GetAllURLsHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Only GET requests are allowed!", http.StatusBadRequest)

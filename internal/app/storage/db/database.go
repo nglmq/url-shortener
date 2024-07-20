@@ -14,6 +14,7 @@ type PostgresStorage struct {
 	db *sql.DB
 }
 
+// InitDBConnection creates a connection and table
 func InitDBConnection() (*PostgresStorage, error) {
 	db, err := sql.Open("pgx", config.DBConnection)
 	if err != nil {
@@ -42,6 +43,7 @@ func InitDBConnection() (*PostgresStorage, error) {
 	return &PostgresStorage{db: db}, nil
 }
 
+// SaveURL saves a URL to the database
 func (s *PostgresStorage) SaveURL(ctx context.Context, userID, alias, url string) (string, error) {
 	var existingAlias string
 
@@ -84,6 +86,7 @@ func (s *PostgresStorage) SaveURL(ctx context.Context, userID, alias, url string
 //	return tx.Commit()
 //}
 
+// GetURL returns the URL associated with the given alias. If URL is deleted, return empty string.
 func (s *PostgresStorage) GetURL(ctx context.Context, alias string) (string, bool, error) {
 	row := s.db.QueryRowContext(ctx, "SELECT url, deleted FROM urls WHERE alias = $1", alias)
 
@@ -98,6 +101,7 @@ func (s *PostgresStorage) GetURL(ctx context.Context, alias string) (string, boo
 	return resURL, deleted, nil
 }
 
+// GetAllUserURLs returns all URLs associated with the given userID.
 func (s *PostgresStorage) GetAllUserURLs(ctx context.Context, userID string) (map[string]string, error) {
 	userURLs := make(map[string]string)
 
@@ -124,6 +128,7 @@ func (s *PostgresStorage) GetAllUserURLs(ctx context.Context, userID string) (ma
 	return userURLs, nil
 }
 
+// DeleteURL marks a URL as deleted
 func (s *PostgresStorage) DeleteURL(ctx context.Context, alias, userID string) error {
 	_, err := s.db.ExecContext(ctx, "UPDATE urls SET deleted = true WHERE alias = $1 AND userId = $2", alias, userID)
 	if err != nil {
@@ -133,6 +138,7 @@ func (s *PostgresStorage) DeleteURL(ctx context.Context, alias, userID string) e
 	return nil
 }
 
+// Ping the database
 func (s *PostgresStorage) Ping() error {
 	if err := s.db.Ping(); err != nil {
 		return err
@@ -141,6 +147,7 @@ func (s *PostgresStorage) Ping() error {
 	return nil
 }
 
+// CloseDBConnection the database connection
 func (s *PostgresStorage) CloseDBConnection() error {
 	if err := s.db.Close(); err != nil {
 		return err

@@ -11,11 +11,13 @@ import (
 const TokenExp = time.Hour * 3
 const SecretKey = "supersecretkey"
 
+// Claims structure for JWT cookie
 type Claims struct {
 	jwt.RegisteredClaims
 	UserID string
 }
 
+// BuildJWTString builds a JWT string with the given claims
 func BuildJWTString() (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -32,6 +34,7 @@ func BuildJWTString() (string, error) {
 	return tokenString, nil
 }
 
+// GetUserID decode given JWT token and returns the UserID
 func GetUserID(tokenString string) string {
 
 	claims := &Claims{}

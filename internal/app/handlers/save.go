@@ -13,12 +13,14 @@ import (
 	"github.com/nglmq/url-shortener/internal/app/storage/db"
 )
 
+// URLShortener is a structure for storage of URLs
 type URLShortener struct {
 	Store       storage.URLStore
 	FileStorage *storage.FileStorage
 	DBStorage   *db.PostgresStorage
 }
 
+// ShortURLHandler is a handler that make a short URL
 func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Only POST requests are allowed!", http.StatusBadRequest)

@@ -10,6 +10,7 @@ import (
 	"golang.org/x/net/context"
 )
 
+// DeleteHandler is the handler to delete a URL.
 func (us *URLShortener) DeleteHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
 		http.Error(w, "Only DELETE requests are allowed!", http.StatusBadRequest)

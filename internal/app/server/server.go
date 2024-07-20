@@ -13,6 +13,7 @@ import (
 	"github.com/nglmq/url-shortener/internal/app/storage/db"
 )
 
+// Start configure and starts the server.
 func Start() (http.Handler, error) {
 	config.ParseFlags()
 

@@ -19,17 +19,20 @@ type (
 	}
 )
 
+// Write counts the bytes and write to logs.
 func (r *loggingResponseWriter) Write(b []byte) (int, error) {
 	size, err := r.ResponseWriter.Write(b)
 	r.responseData.size += size
 	return size, err
 }
 
+// WriteHeader writes the header to logs.
 func (r *loggingResponseWriter) WriteHeader(statusCode int) {
 	r.ResponseWriter.WriteHeader(statusCode)
 	r.responseData.status = statusCode
 }
 
+// RequestLogger logs the request and response.
 func RequestLogger(next http.Handler) http.Handler {
 	logger, err := zap.NewDevelopment()
 	if err != nil {
