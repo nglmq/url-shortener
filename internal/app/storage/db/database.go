@@ -10,6 +10,7 @@ import (
 	"golang.org/x/net/context"
 )
 
+// PostgresStorage is a new DB interface
 type PostgresStorage struct {
 	db *sql.DB
 }

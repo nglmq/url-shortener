@@ -3,7 +3,7 @@ package random
 import "fmt"
 
 func Example() {
-	newUrl := NewRandomURL()
+	newURL := NewRandomURL()
 
-	fmt.Println(newUrl)
+	fmt.Println(newURL)
 }

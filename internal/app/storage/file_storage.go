@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// FileStorage is a struct for file storage
 type FileStorage struct {
 	file   *os.File
 	writer *bufio.Writer

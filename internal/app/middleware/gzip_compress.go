@@ -21,10 +21,12 @@ func newCompressWriter(w http.ResponseWriter) *compressWriter {
 	}
 }
 
+// Header returns the response header
 func (c *compressWriter) Header() http.Header {
 	return c.w.Header()
 }
 
+// Write write bytes to response body.
 func (c *compressWriter) Write(p []byte) (int, error) {
 	return c.writer().Write(p)
 }

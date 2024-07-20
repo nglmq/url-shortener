@@ -5,6 +5,7 @@ import (
 	"sync"
 )
 
+// URLStore is interface for reading and saving URLs
 type URLStore interface {
 	Get(id string) (string, error)
 	Add(id string, url string) error

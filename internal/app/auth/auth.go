@@ -8,7 +8,10 @@ import (
 	"github.com/google/uuid"
 )
 
+// TokenExp expiration time for JWT token
 const TokenExp = time.Hour * 3
+
+// SecretKey secret key for signing JWT tokens
 const SecretKey = "supersecretkey"
 
 // Claims structure for JWT cookie
