@@ -36,6 +36,7 @@ import (
 	"honnef.co/go/tools/staticcheck"
 )
 
+// ErrCheckOsExit checks os.Exit call in main function
 var ErrCheckOsExit = &analysis.Analyzer{
 	Name: "errcheckosexit",
 	Doc:  "check os.Exit call in main function",
