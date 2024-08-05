@@ -1,10 +1,12 @@
 package main
 
 import (
-	"github.com/nglmq/url-shortener/config"
-	"github.com/nglmq/url-shortener/internal/app/server"
 	"log"
 	"net/http"
+	_ "net/http/pprof"
+
+	"github.com/nglmq/url-shortener/config"
+	"github.com/nglmq/url-shortener/internal/app/server"
 )
 
 func main() {
