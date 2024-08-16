@@ -63,7 +63,7 @@ func CertGen() {
 		Bytes: certBytes,
 	})
 	if err != nil {
-		fmt.Errorf("error generating cert pem: %v", err)
+		log.Fatal(err)
 	}
 
 	var privateKeyPEM bytes.Buffer
@@ -72,11 +72,11 @@ func CertGen() {
 		Bytes: x509.MarshalPKCS1PrivateKey(privateKey),
 	})
 	if err != nil {
-		fmt.Errorf("error generating private key pem: %v", err)
+		log.Fatal(err)
 	}
 
 	if err := createFiles(certPEM, privateKeyPEM); err != nil {
-		fmt.Errorf("error creating files: %v", err)
+		log.Fatal(err)
 	}
 }
 
