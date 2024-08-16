@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/nglmq/url-shortener/internal/app/cert"
 	"log"
 	"net/http"
 	_ "net/http/pprof"
@@ -24,6 +25,15 @@ func main() {
 	r, err := server.Start()
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	if config.EnableHTTPS {
+		cert.CertGen()
+
+		log.Fatal(http.ListenAndServeTLS(config.FlagRunAddr,
+			"cert.pem",
+			"key.pem",
+			r))
 	}
 
 	log.Fatal(http.ListenAndServe(config.FlagRunAddr, r))

@@ -11,6 +11,7 @@ var (
 	FlagBaseURL         string
 	FlagInMemoryStorage string
 	DBConnection        string
+	EnableHTTPS         bool
 )
 
 // ParseFlags parses the command line args and ENV variables
@@ -19,6 +20,7 @@ func ParseFlags() {
 	flag.StringVar(&FlagBaseURL, "b", "http://localhost:8080", "base url")
 	flag.StringVar(&FlagInMemoryStorage, "f", "", "in memory storage")
 	flag.StringVar(&DBConnection, "d", "", "postgres connection url")
+	flag.BoolVar(&EnableHTTPS, "s", false, "enable https")
 	flag.Parse()
 
 	envRunAddr := os.Getenv("SERVER_ADDRESS")
@@ -39,5 +41,10 @@ func ParseFlags() {
 	envDBConnection := os.Getenv("DATABASE_DSN")
 	if envDBConnection != "" {
 		DBConnection = envDBConnection
+	}
+
+	envEnableHTTPS := os.Getenv("ENABLE_HTTPS")
+	if envEnableHTTPS != "" {
+		EnableHTTPS = true
 	}
 }
