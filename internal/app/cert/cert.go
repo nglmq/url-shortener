@@ -17,6 +17,7 @@ import (
 	"time"
 )
 
+// CertGen generates a self-signed certificate and a private key
 func CertGen() {
 	// создаём шаблон сертификата
 	cert := &x509.Certificate{
