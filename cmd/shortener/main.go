@@ -1,11 +1,17 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"github.com/nglmq/url-shortener/internal/app/cert"
 	"log"
+	"log/slog"
 	"net/http"
 	_ "net/http/pprof"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/nglmq/url-shortener/config"
 	"github.com/nglmq/url-shortener/internal/app/server"
@@ -27,14 +33,37 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if config.EnableHTTPS {
-		cert.CertGen()
-
-		log.Fatal(http.ListenAndServeTLS(config.FlagRunAddr,
-			"cert.pem",
-			"key.pem",
-			r))
+	srv := &http.Server{
+		Addr:    config.FlagRunAddr,
+		Handler: r,
 	}
 
-	log.Fatal(http.ListenAndServe(config.FlagRunAddr, r))
+	idleConnsClosed := make(chan struct{})
+	sigint := make(chan os.Signal, 3)
+
+	signal.Notify(sigint, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+
+	go func() {
+		<-sigint
+
+		if err := srv.Shutdown(context.Background()); err != nil {
+			log.Printf("HTTP server Shutdown: %v", err)
+		}
+		close(idleConnsClosed)
+	}()
+
+	if config.EnableHTTPS {
+		cert.CertGen()
+		slog.Info("Starting server: ", config.FlagRunAddr)
+		err = srv.ListenAndServeTLS("cert.pem", "key.pem")
+	} else {
+		err = srv.ListenAndServe()
+	}
+
+	if !errors.Is(err, http.ErrServerClosed) {
+		log.Fatalf("HTTP server ListenAndServe: %v", err)
+	}
+
+	<-idleConnsClosed
+	fmt.Println("Server Shutdown gracefully")
 }

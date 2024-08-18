@@ -1,7 +1,7 @@
 {
   "server_address": "localhost:8080",
-  "base_url": "http://localhost",
+  "base_url": "http://localhost:8080",
   "file_storage_path": "",
   "database_dsn": "postgres://postgres:ANTON_og228@localhost:5432/postgres",
-  "enable_https": true
+  "enable_https": false
 }
