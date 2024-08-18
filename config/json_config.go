@@ -6,6 +6,7 @@ import (
 	"os"
 )
 
+// JSONConfig Struct for JSON configuration
 type JSONConfig struct {
 	ServerAddress   string `json:"server_address"`    // аналог переменной окружения SERVER_ADDRESS или флага -a
 	BaseURL         string `json:"base_url"`          // аналог переменной окружения BASE_URL или флага -b
@@ -14,6 +15,7 @@ type JSONConfig struct {
 	EnableHTTPS     bool   `json:"enable_https"`      // аналог переменной окружения ENABLE_HTTPS или флага -s
 }
 
+// ReadJSONConfig read config from file
 func ReadJSONConfig(filename string) error {
 	file, err := os.Open(filename)
 	if err != nil {
