@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/nglmq/url-shortener/internal/app/cert"
 	"log"
-	"log/slog"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
@@ -54,7 +53,7 @@ func main() {
 
 	if config.EnableHTTPS {
 		cert.CertGen()
-		slog.Info("Starting server: ", config.FlagRunAddr)
+		fmt.Printf("Starting server: %s", config.FlagRunAddr)
 		err = srv.ListenAndServeTLS("cert.pem", "key.pem")
 	} else {
 		err = srv.ListenAndServe()
