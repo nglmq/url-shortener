@@ -56,6 +56,7 @@ func Start() (http.Handler, error) {
 			r.Post("/", shortener.JSONBatchHandler)
 		})
 		r.Get("/{id}", shortener.GetURLHandler)
+		r.Get("/api/internal/stats", shortener.GetStats)
 		r.Get("/ping", shortener.PingDB)
 		r.Get("/api/user/urls", shortener.GetAllURLsHandler)
 		r.Delete("/api/user/urls", shortener.DeleteHandler)

@@ -19,6 +19,7 @@ var (
 	DBConnection        string
 	EnableHTTPS         bool
 	ReadConfigFile      string
+	TrustedSubnet       string
 )
 
 // ParseFlags parses the command line args and ENV variables
@@ -29,6 +30,7 @@ func ParseFlags() {
 	flag.StringVar(&DBConnection, "d", "", "postgres connection url")
 	flag.BoolVar(&EnableHTTPS, "s", false, "enable https")
 	flag.StringVar(&ReadConfigFile, "c", "", "read json config from file")
+	flag.StringVar(&TrustedSubnet, "t", "", "CIDR")
 	flag.Parse()
 
 	envRunAddr := os.Getenv("SERVER_ADDRESS")
@@ -54,6 +56,11 @@ func ParseFlags() {
 	envEnableHTTPS := os.Getenv("ENABLE_HTTPS")
 	if envEnableHTTPS != "" {
 		EnableHTTPS = true
+	}
+
+	envTrustedSubnet := os.Getenv("TRUSTED_SUBNET")
+	if envTrustedSubnet != "" {
+		TrustedSubnet = envTrustedSubnet
 	}
 
 	envReadConfig := os.Getenv("CONFIG")
