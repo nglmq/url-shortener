@@ -13,7 +13,7 @@ type JSONConfig struct {
 	FileStoragePath string `json:"file_storage_path"` // аналог переменной окружения FILE_STORAGE_PATH или флага -f
 	DatabaseDSN     string `json:"database_dsn"`      // аналог переменной окружения DATABASE_DSN или флага -d
 	EnableHTTPS     bool   `json:"enable_https"`      // аналог переменной окружения ENABLE_HTTPS или флага -s
-	TrustedSubnet string `json:"trusted_subnet"` // аналог переменной окружения TRUSTED_SUBNET или флага -t
+	TrustedSubnet   string `json:"trusted_subnet"`    // аналог переменной окружения TRUSTED_SUBNET или флага -t
 }
 
 // ReadJSONConfig read config from file
