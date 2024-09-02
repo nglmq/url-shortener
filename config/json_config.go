@@ -14,6 +14,7 @@ type JSONConfig struct {
 	DatabaseDSN     string `json:"database_dsn"`      // аналог переменной окружения DATABASE_DSN или флага -d
 	EnableHTTPS     bool   `json:"enable_https"`      // аналог переменной окружения ENABLE_HTTPS или флага -s
 	TrustedSubnet   string `json:"trusted_subnet"`    // аналог переменной окружения TRUSTED_SUBNET или флага -t
+	GRPCServer      bool   `json:"grpc_server"`       // аналог переменной окружения GRPC_SERVER или флага -g
 }
 
 // ReadJSONConfig read config from file
@@ -46,6 +47,9 @@ func ReadJSONConfig(filename string) error {
 	}
 	if config.TrustedSubnet != "" {
 		TrustedSubnet = config.TrustedSubnet
+	}
+	if config.GRPCServer {
+		GRPCServer = true
 	}
 
 	return nil

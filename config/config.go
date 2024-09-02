@@ -20,6 +20,7 @@ var (
 	EnableHTTPS         bool
 	ReadConfigFile      string
 	TrustedSubnet       string
+	GRPCServer          bool
 )
 
 // ParseFlags parses the command line args and ENV variables
@@ -31,6 +32,7 @@ func ParseFlags() {
 	flag.BoolVar(&EnableHTTPS, "s", false, "enable https")
 	flag.StringVar(&ReadConfigFile, "c", "", "read json config from file")
 	flag.StringVar(&TrustedSubnet, "t", "", "CIDR")
+	flag.BoolVar(&GRPCServer, "g", false, "run gRPC server")
 	flag.Parse()
 
 	envRunAddr := os.Getenv("SERVER_ADDRESS")
@@ -61,6 +63,11 @@ func ParseFlags() {
 	envTrustedSubnet := os.Getenv("TRUSTED_SUBNET")
 	if envTrustedSubnet != "" {
 		TrustedSubnet = envTrustedSubnet
+	}
+
+	envGRPCServer := os.Getenv("GRPC_SERVER")
+	if envGRPCServer != "" {
+		GRPCServer = true
 	}
 
 	envReadConfig := os.Getenv("CONFIG")

@@ -4,13 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/nglmq/url-shortener/internal/app/cert"
+	grpcserver "github.com/nglmq/url-shortener/internal/app/grpc/server"
 	"log"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/nglmq/url-shortener/internal/app/cert"
 
 	"github.com/nglmq/url-shortener/config"
 	"github.com/nglmq/url-shortener/internal/app/server"
@@ -32,37 +34,43 @@ func main() {
 		log.Fatal(err)
 	}
 
-	srv := &http.Server{
-		Addr:    config.FlagRunAddr,
-		Handler: r,
-	}
-
-	idleConnsClosed := make(chan struct{})
-	sigint := make(chan os.Signal, 3)
-
-	signal.Notify(sigint, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
-
-	go func() {
-		<-sigint
-
-		if err := srv.Shutdown(context.Background()); err != nil {
-			log.Printf("HTTP server Shutdown: %v", err)
+	if config.GRPCServer {
+		if err := grpcserver.StartGRPCServer(); err != nil {
+			log.Fatal(err)
 		}
-		close(idleConnsClosed)
-	}()
-
-	if config.EnableHTTPS {
-		cert.CertGen()
-		fmt.Printf("Starting server: %s", config.FlagRunAddr)
-		err = srv.ListenAndServeTLS("cert.pem", "key.pem")
 	} else {
-		err = srv.ListenAndServe()
-	}
+		srv := &http.Server{
+			Addr:    config.FlagRunAddr,
+			Handler: r,
+		}
 
-	if !errors.Is(err, http.ErrServerClosed) {
-		log.Fatalf("HTTP server ListenAndServe: %v", err)
-	}
+		idleConnsClosed := make(chan struct{})
+		sigint := make(chan os.Signal, 3)
 
-	<-idleConnsClosed
-	fmt.Println("Server Shutdown gracefully")
+		signal.Notify(sigint, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+
+		go func() {
+			<-sigint
+
+			if err := srv.Shutdown(context.Background()); err != nil {
+				log.Printf("HTTP server Shutdown: %v", err)
+			}
+			close(idleConnsClosed)
+		}()
+
+		if config.EnableHTTPS {
+			cert.CertGen()
+			fmt.Printf("Starting server: %s", config.FlagRunAddr)
+			err = srv.ListenAndServeTLS("cert.pem", "key.pem")
+		} else {
+			err = srv.ListenAndServe()
+		}
+
+		if !errors.Is(err, http.ErrServerClosed) {
+			log.Fatalf("HTTP server ListenAndServe: %v", err)
+		}
+
+		<-idleConnsClosed
+		fmt.Println("Server Shutdown gracefully")
+	}
 }
