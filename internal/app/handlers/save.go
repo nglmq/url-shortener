@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -68,7 +67,7 @@ func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) 
 			return
 		}
 		if existAlias != alias {
-			shortenedURL := fmt.Sprintf(config.FlagBaseURL + "/" + existAlias)
+			shortenedURL := config.FlagBaseURL + "/" + existAlias
 
 			contentLength := len(shortenedURL)
 
@@ -93,7 +92,7 @@ func (us *URLShortener) ShortURLHandler(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	shortenedURL := fmt.Sprintf(config.FlagBaseURL + "/" + alias)
+	shortenedURL := config.FlagBaseURL + "/" + alias
 	contentLength := len(shortenedURL)
 
 	w.Header().Set("Content-Type", "text/plain")

@@ -45,7 +45,7 @@ func (s *URLShortenerServer) SaveJSON(ctx context.Context, req *pb.SaveJSONReque
 		return nil, fmt.Errorf("failed to save URL to database: %v", err)
 	}
 
-	shortURL := fmt.Sprintf(config.FlagBaseURL + "/" + existAlias)
+	shortURL := config.FlagBaseURL + "/" + existAlias
 	return &pb.SaveJSONResponse{ShortUrl: shortURL}, nil
 }
 
@@ -61,7 +61,7 @@ func (s *URLShortenerServer) SaveJSONBatch(ctx context.Context, req *pb.SaveJSON
 			return nil, fmt.Errorf("failed to save URL to database: %v", err)
 		}
 
-		shortURL := fmt.Sprintf(config.FlagBaseURL + "/" + existAlias)
+		shortURL := config.FlagBaseURL + "/" + existAlias
 		results = append(results, &pb.BatchURLResponse{
 			CorrelationId: batchReq.GetCorrelationId(),
 			ShortUrl:      shortURL,
@@ -91,7 +91,7 @@ func (s *URLShortenerServer) GetAllURLs(ctx context.Context, req *pb.GetAllURLsR
 	var urlMappings []*pb.URLMapping
 	for alias, originalURL := range urls {
 		urlMappings = append(urlMappings, &pb.URLMapping{
-			ShortUrl:    fmt.Sprintf(config.FlagBaseURL + "/" + alias),
+			ShortUrl:    config.FlagBaseURL + "/" + alias,
 			OriginalUrl: originalURL,
 		})
 	}
