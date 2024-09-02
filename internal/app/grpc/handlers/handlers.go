@@ -31,7 +31,7 @@ func (s *URLShortenerServer) SaveURL(ctx context.Context, req *pb.SaveURLRequest
 		return nil, fmt.Errorf("failed to save URL to database: %v", err)
 	}
 
-	shortURL := fmt.Sprintf(config.FlagBaseURL + "/" + existAlias)
+	shortURL := config.FlagBaseURL + "/" + existAlias
 	return &pb.SaveURLResponse{ShortUrl: shortURL}, nil
 }
 
