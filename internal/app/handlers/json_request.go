@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -89,7 +88,7 @@ func (us *URLShortener) JSONHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if existAlias != alias {
-			shortenedURL := fmt.Sprintf(config.FlagBaseURL + "/" + existAlias)
+			shortenedURL := config.FlagBaseURL + "/" + existAlias
 			contentLength := len(shortenedURL)
 
 			responseJSON = JSONResponse{
@@ -129,7 +128,7 @@ func (us *URLShortener) JSONHandler(w http.ResponseWriter, r *http.Request) {
 	//	}
 	//}
 
-	shortenedURL := fmt.Sprintf(config.FlagBaseURL + "/" + alias)
+	shortenedURL := config.FlagBaseURL + "/" + alias
 	contentLength := len(shortenedURL)
 
 	responseJSON = JSONResponse{
@@ -228,7 +227,7 @@ func (us *URLShortener) JSONBatchHandler(w http.ResponseWriter, r *http.Request)
 
 		responseJSON[i] = JSONBatchResponse{
 			CorrelationID: req.CorrelationID,
-			ShortURL:      fmt.Sprintf(config.FlagBaseURL + "/" + alias),
+			ShortURL:      config.FlagBaseURL + "/" + alias,
 		}
 	}
 

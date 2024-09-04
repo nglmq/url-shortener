@@ -139,6 +139,24 @@ func (s *PostgresStorage) DeleteURL(ctx context.Context, alias, userID string) e
 	return nil
 }
 
+// GetStats get urls and users quantity
+func (s *PostgresStorage) GetStats(ctx context.Context) (int, int, error) {
+	uriQuantity := 0
+	usersQuantity := 0
+
+	rowURLs := s.db.QueryRowContext(ctx, "SELECT count(DISTINCT url) FROM urls")
+	if err := rowURLs.Scan(&uriQuantity); err != nil {
+		return 0, 0, err
+	}
+
+	rowUsers := s.db.QueryRowContext(ctx, "SELECT count(DISTINCT userId) FROM urls")
+	if err := rowUsers.Scan(&usersQuantity); err != nil {
+		return 0, 0, err
+	}
+
+	return uriQuantity, usersQuantity, nil
+}
+
 // Ping the database
 func (s *PostgresStorage) Ping() error {
 	if err := s.db.Ping(); err != nil {

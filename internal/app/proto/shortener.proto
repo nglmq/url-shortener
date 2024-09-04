@@ -1,0 +1,96 @@
+syntax = "proto3";
+
+package shortener;
+
+option go_package = "shortener/proto";
+
+message GetUserIDRequest {}
+
+message GetUserIDResponse {
+  string user_id = 1;
+}
+
+message SaveURLRequest {
+  string user_id = 1;
+  string url = 2;
+}
+
+message SaveURLResponse {
+  string short_url = 1;
+}
+
+message SaveJSONRequest {
+  string user_id = 1;
+  string json_url = 2;
+} 
+
+message SaveJSONResponse {
+  string short_url = 1;
+}
+
+message SaveJSONBatchRequest {
+  string user_id = 1;
+  repeated BatchURLRequest urls = 2;
+}
+  
+message BatchURLRequest {
+  string correlation_id = 1; 
+  string original_url = 2; 
+}
+
+message SaveJSONBatchResponse {
+  repeated BatchURLResponse results = 1; 
+}
+
+message BatchURLResponse {
+  string correlation_id = 1; 
+  string short_url = 2;      
+}
+
+message GetURLRequest {
+    string id = 1; 
+}
+  
+message GetURLResponse {
+  string url = 1;   
+  bool deleted = 2;    
+}
+
+message GetAllURLsRequest {
+  string user_id = 1;
+}
+
+message URLMapping {
+  string short_url = 1;   
+  string original_url = 2; 
+}
+
+message GetAllURLsResponse {
+  repeated URLMapping urls = 1;
+}
+
+message GetStatsRequest {}
+
+message GetStatsResponse {
+  int32 urls = 1;  
+  int32 users = 2; 
+}
+
+message DeleteURLRequest {
+  string user_id = 1;
+  string alias = 2; 
+}
+
+message DeleteURLResponse {
+  bool deleted = 1; 
+}
+
+service URLShortener {
+    rpc SaveURL(SaveURLRequest) returns (SaveURLResponse);
+    rpc SaveJSON(SaveJSONRequest) returns (SaveJSONResponse);
+    rpc SaveJSONBatch(SaveJSONBatchRequest) returns (SaveJSONBatchResponse);
+    rpc GetURL(GetURLRequest) returns (GetURLResponse);
+    rpc GetAllURLs(GetAllURLsRequest) returns (GetAllURLsResponse);
+    rpc GetStats(GetStatsRequest) returns (GetStatsResponse);
+    rpc DeleteURL(DeleteURLRequest) returns (DeleteURLResponse);
+}

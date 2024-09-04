@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"net"
 	"net/http"
 	"strings"
 
@@ -13,6 +14,12 @@ import (
 type JSONAllUserURLs struct {
 	ShortURL    string `json:"short_url"`
 	OriginalURL string `json:"original_url"`
+}
+
+// JSONStats is a JSON response for GetStats
+type JSONStats struct {
+	URLs  int `json:"urls"`
+	Users int `json:"users"`
 }
 
 // GetURLHandler is handler to get user URL.
@@ -108,6 +115,45 @@ func (us *URLShortener) GetAllURLsHandler(w http.ResponseWriter, r *http.Request
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(jsonURLs); err != nil {
+		http.Error(w, "Error encoding URLs", http.StatusInternalServerError)
+		return
+	}
+}
+
+// GetStats is a handler to get stats about urls and users quantity
+func (us *URLShortener) GetStats(w http.ResponseWriter, r *http.Request) {
+	if config.TrustedSubnet == "" {
+		http.Error(w, "Not allowed", http.StatusForbidden)
+		return
+	}
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusBadRequest)
+		return
+	}
+
+	clientIP := r.Header.Get("X-Real-IP")
+
+	_, subnet, _ := net.ParseCIDR(config.TrustedSubnet)
+
+	ip := net.ParseIP(clientIP)
+	if !subnet.Contains(ip) {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	uriQuantity, usersQuantity, err := us.DBStorage.GetStats(r.Context())
+	if err != nil {
+		http.Error(w, "Error getting URLs", http.StatusInternalServerError)
+		return
+	}
+
+	jsonStats := JSONStats{
+		URLs:  uriQuantity,
+		Users: usersQuantity,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(jsonStats); err != nil {
 		http.Error(w, "Error encoding URLs", http.StatusInternalServerError)
 		return
 	}
