@@ -25,14 +25,14 @@
   - CONFIG
 
 ## URLs
-```POST / ``` - short url
-```POST /api/shorten``` - request body ```{"url":"<some_url>"}``` => result ```{"result":"<short_url>"}```
-```POST /api/shorten/batch``` - req body ```[{"correlation_id": "<строковый идентификатор>", "original_url": "<URL для сокращения>"},...]``` => ```[{"correlation_id": "<строковый идентификатор из объекта запроса>", "short_url": "<результирующий сокращённый URL>"},...]```
-```GET /{id}``` - normal url
-```GET /ping``` - check db connecction
-```GET /api/user/urls``` - all users short urls. Only authorized users.
-```GET /api/internal/stats``` - quantity of users and short urls
-```DELETE /api/user/urls``` - soft delete
-
+```POST / ``` - short url  
+```POST /api/shorten``` - request body ```{"url":"<some_url>"}``` => result ```{"result":"<short_url>"}```  
+```POST /api/shorten/batch``` - req body ```[{"correlation_id": "<строковый идентификатор>", "original_url": "<URL для сокращения>"},...]``` => ```[{"correlation_id": "<строковый идентификатор из объекта запроса>", "short_url": "<результирующий сокращённый URL>"},...]```  
+```GET /{id}``` - normal url  
+```GET /ping``` - check db connecction  
+```GET /api/user/urls``` - all users short urls. Only authorized users.  
+```GET /api/internal/stats``` - quantity of users and short urls  
+```DELETE /api/user/urls``` - soft delete  
+  
 gRPC сервер полностью дублирует HTTP хендлеры. Используется middleware для gzip шифрования. Также используются JWT токены для авторизации.
 
